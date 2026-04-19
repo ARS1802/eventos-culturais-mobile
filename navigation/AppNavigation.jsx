@@ -5,6 +5,7 @@ import { Text } from "react-native";
 import MainContainer from "../components/MainContainer";
 import Header from "../components/Header";
 import Bottom from "../components/Bottom";
+import Input from "../components/Input";
 
 const Stack = createNativeStackNavigator();
 
@@ -13,7 +14,10 @@ const LoginScreen = () => (
     top={<Header title="Espaços Culturais" />}
     bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
   >
-    <Text>Tela de Login</Text>
+    <Input label="Email" placeholder="Digite seu email" />
+    
+    
+
   </MainContainer>
 );
 
@@ -23,6 +27,7 @@ const FeedVisitanteScreen = () => <TelaTemp nome="Feed Visitante" />;
 const FeedOrganizadorScreen = () => <TelaTemp nome="Feed Organizador" />;
 
 export default function AppNavigator() {
+  
   return (
     <NavigationContainer>
       <Stack.Navigator
