@@ -14,10 +14,26 @@ const LoginScreen = () => (
     top={<Header title="Espaços Culturais" />}
     bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
   >
+<<<<<<< HEAD
     <Input label="Email" placeholder="Digite seu email" />
     
     
 
+=======
+    <Text>
+      primeira linha {"\n"} a {"\n"} b {"\n"} c {"\n"} d {"\n"} e {"\n"} f{" "}
+      {"\n"} g {"\n"} h {"\n"} i {"\n"} j {"\n"} k {"\n"} x {"\n"} x {"\n"} x{" "}
+      {"\n"} x {"\n"}x {"\n"} x {"\n"} x {"\n"}x {"\n"} x {"\n"} x {"\n"}x{" "}
+      {"\n"}x {"\n"} x {"\n"}x {"\n"} x {"\n"}x {"\n"}x {"\n"} x {"\n"} x {"\n"}{" "}
+      x {"\n"} x {"\n"} x {"\n"} x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}vx {"\n"}x {"\n"}x {"\n"}x {"\n"}FIM DA LINHA {"\n"}
+    </Text>
+>>>>>>> 632a9ab84027150568d79e07b2ab233ec003bd74
   </MainContainer>
 );
 
@@ -37,7 +53,10 @@ export default function AppNavigator() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
-        <Stack.Screen name="FeedOrganizador" component={FeedOrganizadorScreen} />
+        <Stack.Screen
+          name="FeedOrganizador"
+          component={FeedOrganizadorScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
