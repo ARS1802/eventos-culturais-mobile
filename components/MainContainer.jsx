@@ -1,20 +1,23 @@
-import React from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function MainContainer({ top, bottom, children }) {
+  const insets = useSafeAreaInsets();
   return (
     <View style={styles.feed}>
       {/* TOPO FIXO */}
-      {top && <View style={styles.top}>{top}</View>}
+      {top && (
+        <View style={[styles.top, { paddingTop: insets.top }]}>{top}</View>
+      )}
 
       {/* CONTEÚDO SCROLL */}
       <ScrollView
         contentContainerStyle={[
-          styles.scrollContent,
           {
-            paddingTop: top ? 100 : 20,
-            paddingBottom: bottom ? 100 : 20,
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
           },
+          styles.scrollContent,
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -22,7 +25,11 @@ export default function MainContainer({ top, bottom, children }) {
       </ScrollView>
 
       {/* BASE FIXA */}
-      {bottom && <View style={styles.bottom}>{bottom}</View>}
+      {bottom && (
+        <View style={[styles.bottom, { paddingBottom: insets.bottom }]}>
+          {bottom}
+        </View>
+      )}
     </View>
   );
 }
@@ -32,9 +39,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F4EBDD",
   },
-
   top: {
-    position: "absolute",
     top: 0,
     width: "100%",
     zIndex: 10,
@@ -42,7 +47,6 @@ const styles = StyleSheet.create({
   },
 
   bottom: {
-    position: "absolute",
     bottom: 0,
     width: "100%",
     zIndex: 10,

@@ -13,7 +13,19 @@ const LoginScreen = () => (
     top={<Header title="Espaços Culturais" />}
     bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
   >
-    <Text>Tela de Login</Text>
+    <Text>
+      primeira linha {"\n"} a {"\n"} b {"\n"} c {"\n"} d {"\n"} e {"\n"} f{" "}
+      {"\n"} g {"\n"} h {"\n"} i {"\n"} j {"\n"} k {"\n"} x {"\n"} x {"\n"} x{" "}
+      {"\n"} x {"\n"}x {"\n"} x {"\n"} x {"\n"}x {"\n"} x {"\n"} x {"\n"}x{" "}
+      {"\n"}x {"\n"} x {"\n"}x {"\n"} x {"\n"}x {"\n"}x {"\n"} x {"\n"} x {"\n"}{" "}
+      x {"\n"} x {"\n"} x {"\n"} x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
+      {"\n"}vx {"\n"}x {"\n"}x {"\n"}x {"\n"}FIM DA LINHA {"\n"}
+    </Text>
   </MainContainer>
 );
 
@@ -32,7 +44,10 @@ export default function AppNavigator() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
-        <Stack.Screen name="FeedOrganizador" component={FeedOrganizadorScreen} />
+        <Stack.Screen
+          name="FeedOrganizador"
+          component={FeedOrganizadorScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
