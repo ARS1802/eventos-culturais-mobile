@@ -1,4 +1,6 @@
 import React from "react";
+import { useState } from "react";
+import { TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Text } from "react-native";
@@ -9,14 +11,73 @@ import Input from "../components/Input";
 
 const Stack = createNativeStackNavigator();
 
-const LoginScreen = () => (
+const LoginScreen = () => {
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+
+  const [erroEmail, setErroEmail] = useState('');
+  const [erroSenha, setErroSenha] = useState('');
+
+  function validar() {
+    let valido = true;
+
+    if (email === '') {
+      setErroEmail('Email é obrigatório');
+    } else {
+      setErroEmail('');
+      alert('OK');
+    }
+
+    if (senha === '') {
+      setErroSenha('Senha é obrigatória');
+      valido = false;
+    } else{
+      setErroSenha('');
+    }
+
+    if (valido) {
+      alert('OK');
+    } else{
+      alert('Preencha os campos corretamente');
+    }
+  }
+
+  
+  
+
+  return ( 
   <MainContainer
     top={<Header title="Espaços Culturais" />}
     bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
   >
-    <Input label="Email" placeholder="Digite seu email" />
     
-  
+    <Input
+  label="Email"
+  placeholder="Digite seu email"
+  value={email}
+  onChangeText={setEmail}
+  error={erroEmail}
+    />
+    <Input
+  label="Senha"
+  placeholder="Digite sua senha" 
+  value={senha}
+  onChangeText={setSenha}
+  secureTextEntry
+  error={erroSenha}
+/>
+      <TouchableOpacity onPress={validar} style={{
+          backgroundColor: "#D1A38F",
+          padding: 15,
+          borderRadius: 10,
+          alignItems: "center",
+          marginTop: 10
+        }}
+      > <Text style={{ color: "#fff", fontWeight: "bold" }}> Entrar </Text>
+      </TouchableOpacity>
+    
+
     <Text>
       primeira linha {"\n"} a {"\n"} b {"\n"} c {"\n"} d {"\n"} e {"\n"} f{" "}
       {"\n"} g {"\n"} h {"\n"} i {"\n"} j {"\n"} k {"\n"} x {"\n"} x {"\n"} x{" "}
@@ -31,7 +92,7 @@ const LoginScreen = () => (
       {"\n"}vx {"\n"}x {"\n"}x {"\n"}x {"\n"}FIM DA LINHA {"\n"}
     </Text>
   </MainContainer>
-);
+)};
 
 const TelaTemp = ({ nome }) => <Text>{nome}</Text>;
 const CadastroScreen = () => <TelaTemp nome="Cadastro" />;
