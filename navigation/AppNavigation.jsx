@@ -1,14 +1,12 @@
-import React from "react";
-import { useState } from "react";
-import { TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Text } from "react-native";
 import MainContainer from "../components/MainContainer";
 import Header from "../components/Header";
 import Bottom from "../components/Bottom";
 import Input from "../components/Input";
-
+import Button from "../components/Button";
 const Stack = createNativeStackNavigator();
 
 const LoginScreen = () => {
@@ -42,16 +40,16 @@ const LoginScreen = () => {
       alert('Preencha os campos corretamente');
     }
   }
-
-  
-  
-
   return ( 
-  <MainContainer
+ <MainContainer
     top={<Header title="Espaços Culturais" />}
-    bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
+    bottom={
+  <View style={{ width: "100%", padding: 10, gap: 8, flexDirection: "row" }}>
+    <Button cor="#D8A7B1" texto="Cadastre-se" onPress={() => {}} style={{ flex: 1 }} />
+    <Button cor="#BFC9B2" texto="Recuperar senha" onPress={() => {}} style={{ flex: 1 }} />
+  </View>
+}
   >
-    
     <Input
   label="Email"
   placeholder="Digite seu email"
@@ -67,30 +65,7 @@ const LoginScreen = () => {
   secureTextEntry
   error={erroSenha}
 />
-      <TouchableOpacity onPress={validar} style={{
-          backgroundColor: "#D1A38F",
-          padding: 15,
-          borderRadius: 10,
-          alignItems: "center",
-          marginTop: 10
-        }}
-      > <Text style={{ color: "#fff", fontWeight: "bold" }}> Entrar </Text>
-      </TouchableOpacity>
-    
-
-    <Text>
-      primeira linha {"\n"} a {"\n"} b {"\n"} c {"\n"} d {"\n"} e {"\n"} f{" "}
-      {"\n"} g {"\n"} h {"\n"} i {"\n"} j {"\n"} k {"\n"} x {"\n"} x {"\n"} x{" "}
-      {"\n"} x {"\n"}x {"\n"} x {"\n"} x {"\n"}x {"\n"} x {"\n"} x {"\n"}x{" "}
-      {"\n"}x {"\n"} x {"\n"}x {"\n"} x {"\n"}x {"\n"}x {"\n"} x {"\n"} x {"\n"}{" "}
-      x {"\n"} x {"\n"} x {"\n"} x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
-      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
-      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
-      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
-      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
-      {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x {"\n"}x{" "}
-      {"\n"}vx {"\n"}x {"\n"}x {"\n"}x {"\n"}FIM DA LINHA {"\n"}
-    </Text>
+ <Button cor="#D8A7B1" texto="Entrar" onPress={validar}/>
   </MainContainer>
 )};
 
