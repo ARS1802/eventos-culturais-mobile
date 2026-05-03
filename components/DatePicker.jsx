@@ -10,7 +10,11 @@ export default function DatePicker() {
         value={date}
         mode="datetime"
         display="default"
-        onChange={() => setDate(date)}
+        onChange={(event, selectedDate) => {
+          if (selectedDate) {
+            setDate(selectedDate);
+          }
+        }}
       />
       <Text>{date.toLocaleDateString()}</Text>
     </>
