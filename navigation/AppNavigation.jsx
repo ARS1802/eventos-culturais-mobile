@@ -5,12 +5,14 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { Text } from "react-native";
-import MainContainer from "../components/MainContainer";
-import Header from "../components/Header";
-import Bottom from "../components/Bottom";
-import Input from "../components/Input";
-import DatePicker from "../components/DatePicker";
-import SingleChoicePicker from "../components/SingleChoicePicker";
+import {
+  Bottom,
+  DatePicker,
+  Header,
+  Input,
+  MainContainer,
+  SingleChoicePicker,
+} from "../components";
 
 const Stack = createNativeStackNavigator();
 

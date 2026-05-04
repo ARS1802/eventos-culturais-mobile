@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import COLORS from "../assets/colors";
 
-export default function Input({ label, error, secureTextEntry, ...props }) {
+export function Input({ label, error, secureTextEntry, ...props }) {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
   {
     /* Importante para verificação se a senha está visível */

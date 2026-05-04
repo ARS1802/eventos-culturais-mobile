@@ -1,7 +1,7 @@
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function MainContainer({ top, bottom, children }) {
+export function MainContainer({ top, bottom, children }) {
   const insets = useSafeAreaInsets();
   return (
     <View style={styles.feed}>

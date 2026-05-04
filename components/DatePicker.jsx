@@ -9,7 +9,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import COLORS from "../assets/colors";
 
-export default function DatePicker() {
+export function DatePicker() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
