@@ -14,98 +14,16 @@ import {
   SingleChoicePicker,
 } from "../components";
 
+import {
+  Login,
+  LoginScreen,
+  TelaTemp,
+  CadastroScreen,
+  FeedVisitanteScreen,
+  FeedOrganizadorScreen,
+} from "../screens";
+
 const Stack = createNativeStackNavigator();
-
-const LoginScreen = () => {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-
-  const [erroEmail, setErroEmail] = useState("");
-  const [erroSenha, setErroSenha] = useState("");
-  const [opcao, setOpcao] = useState("");
-
-  function validar() {
-    let valido = true;
-
-    if (email === "") {
-      setErroEmail("Email é obrigatório");
-    } else {
-      setErroEmail("");
-      alert("OK");
-    }
-
-    if (senha === "") {
-      setErroSenha("Senha é obrigatória");
-      valido = false;
-    } else {
-      setErroSenha("");
-    }
-
-    if (valido) {
-      alert("OK");
-    } else {
-      alert("Preencha os campos corretamente");
-    }
-  }
-
-  return (
-    <MainContainer
-      top={<Header title="Espaços Culturais" />}
-      bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
-    >
-      <Input
-        label="Email"
-        placeholder="Digite seu email"
-        value={email}
-        onChangeText={setEmail}
-        error={erroEmail}
-      />
-      <Input
-        label="Senha"
-        placeholder="Digite sua senha"
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry
-        error={erroSenha}
-      />
-      <SingleChoicePicker
-        selected={opcao}
-        onSelect={setOpcao}
-        options={[
-          {
-            label: "Usuário",
-            description: "Esta é uma opção",
-            value: "A",
-          },
-          {
-            label: "Organizador",
-            description: "Esta é outra opção",
-            value: "B",
-          },
-        ]}
-      />
-      <TouchableOpacity
-        onPress={validar}
-        style={{
-          backgroundColor: "#D1A38F",
-          padding: 15,
-          borderRadius: 10,
-          alignItems: "center",
-          marginTop: 10,
-        }}
-      >
-        <Text style={{ color: "#fff", fontWeight: "bold" }}> Entrar </Text>
-      </TouchableOpacity>
-
-      <DatePicker />
-    </MainContainer>
-  );
-};
-
-const TelaTemp = ({ nome }) => <Text>{nome}</Text>;
-const CadastroScreen = () => <TelaTemp nome="Cadastro" />;
-const FeedVisitanteScreen = () => <TelaTemp nome="Feed Visitante" />;
-const FeedOrganizadorScreen = () => <TelaTemp nome="Feed Organizador" />;
 
 export default function AppNavigator() {
   return (
@@ -114,7 +32,7 @@ export default function AppNavigator() {
         initialRouteName="Login"
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
         <Stack.Screen
