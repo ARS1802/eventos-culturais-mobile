@@ -20,7 +20,7 @@ const LoginScreen = () => {
 
   const [erroEmail, setErroEmail] = useState("");
   const [erroSenha, setErroSenha] = useState("");
-  const [opcao, setOpcao] = useState('');
+  const [opcao, setOpcao] = useState("");
 
   function validar() {
     let valido = true;
@@ -66,22 +66,22 @@ const LoginScreen = () => {
         secureTextEntry
         error={erroSenha}
       />
-        <SingleChoicePicker
-  selected={opcao}
-  onSelect={setOpcao}
-  options={[
-    {
-      label: 'Usuário',
-      description: 'Esta é uma opção',
-      value: 'A'
-    },
-    {
-      label: 'Organizador',
-      description: 'Esta é outra opção',
-      value: 'B'
-    }
-  ]}
-/>
+      <SingleChoicePicker
+        selected={opcao}
+        onSelect={setOpcao}
+        options={[
+          {
+            label: "Usuário",
+            description: "Esta é uma opção",
+            value: "A",
+          },
+          {
+            label: "Organizador",
+            description: "Esta é outra opção",
+            value: "B",
+          },
+        ]}
+      />
       <TouchableOpacity
         onPress={validar}
         style={{
@@ -94,7 +94,7 @@ const LoginScreen = () => {
       >
         <Text style={{ color: "#fff", fontWeight: "bold" }}> Entrar </Text>
       </TouchableOpacity>
-      
+
       <DatePicker />
     </MainContainer>
   );
