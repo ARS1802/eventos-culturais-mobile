@@ -1,8 +1,7 @@
-import {
+import type {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   SnapshotOptions,
-  Timestamp,
 } from "firebase/firestore";
 /* 
     ==================================
@@ -39,12 +38,12 @@ export const reviewConverter: FirestoreDataConverter<Review> = {
       rating: review.rating,
       comment: review.comment,
       visitorName: review.visitorName,
-      createdAt: Timestamp.fromDate(review.createdAt),
-      updatedAt: Timestamp.fromDate(review.updatedAt),
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
     };
   },
 
-  fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions) {
+  fromFirestore(snapshot: QueryDocumentSnapshot, options?: SnapshotOptions) {
     const data = snapshot.data(options);
 
     return {

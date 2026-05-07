@@ -1,8 +1,7 @@
-import {
+import type {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   SnapshotOptions,
-  Timestamp,
 } from "firebase/firestore";
 /* 
     ==================================
@@ -97,17 +96,17 @@ export const culturalEventConverter: FirestoreDataConverter<CulturalEvent> = {
       title: event.title,
       description: event.description,
       themes: event.themes,
-      startAt: Timestamp.fromDate(event.startAt),
-      endAt: event.endAt ? Timestamp.fromDate(event.endAt) : null,
+      startAt: event.startAt,
+      endAt: event.endAt ?? null,
       poster: event.poster ?? null,
       status: event.status,
       reviewStats: event.reviewStats,
-      createdAt: Timestamp.fromDate(event.createdAt),
-      updatedAt: Timestamp.fromDate(event.updatedAt),
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt,
     };
   },
 
-  fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions) {
+  fromFirestore(snapshot: QueryDocumentSnapshot, options?: SnapshotOptions) {
     const data = snapshot.data(options);
 
     return {

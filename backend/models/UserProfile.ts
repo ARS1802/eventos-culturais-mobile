@@ -1,8 +1,7 @@
-import {
+import type {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   SnapshotOptions,
-  Timestamp,
 } from "firebase/firestore";
 /* 
     ==================================
@@ -43,12 +42,12 @@ export const userProfileConverter: FirestoreDataConverter<UserProfile> = {
       name: user.name,
       email: user.email,
       role: user.role,
-      createdAt: Timestamp.fromDate(user.createdAt),
-      updatedAt: Timestamp.fromDate(user.updatedAt),
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   },
 
-  fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions) {
+  fromFirestore(snapshot: QueryDocumentSnapshot, options?: SnapshotOptions) {
     const data = snapshot.data(options);
 
     return {
