@@ -1,7 +1,7 @@
 import { adminDb } from "./adminConfig.js";
 const postarRapido = (d) => adminDb.collection("testes").add(d);
 const ref = await postarRapido({
-  descricao: "HELLO WORLD ADMIN!",
+  descricao: "HELLO SAMYLLA ADMIN!",
   criadoEm: new Date(),
 });
 

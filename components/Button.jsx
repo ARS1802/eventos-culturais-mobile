@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
-export default function Button({ cor, texto, onPress, style }) {
+export function Button({ cor, texto, onPress, style }) {
   return (
     <TouchableOpacity
       style={[styles.botao, { backgroundColor: cor }, style]}

@@ -1,15 +1,7 @@
 import React from "react";
-<<<<<<< HEAD
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-
-export default function Bottom({ tipo, onFiltro }) {
-  const navigation = useNavigation();
-=======
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../assets/colors";
->>>>>>> e844128aa400aa1a0e8918897e5291c3fa346d52
 
 export function Bottom({
   children,
@@ -26,7 +18,7 @@ export function Bottom({
         style,
       ]}
     >
-      <View style={[styles.content, { flexDirection: direction }]}> 
+      <View style={[styles.content, { flexDirection: direction }]}>
         {children}
       </View>
     </SafeAreaView>

@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "admin:test": "node backend/firebase/testes.js"
+    "admin:test": "node backend/firebase/testes.js",
+    "print":"echo testelegal!"
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "8.4.4",
