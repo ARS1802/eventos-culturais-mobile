@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+<<<<<<< HEAD
 import MainContainer from "../components/MainContainer";
 import Header from "../components/Header";
 import Bottom from "../components/Bottom";
@@ -74,15 +75,38 @@ const CadastroScreen = () => <TelaTemp nome="Cadastro" />;
 const FeedVisitanteScreen = () => <TelaTemp nome="Feed Visitante" />;
 const FeedOrganizadorScreen = () => <TelaTemp nome="Feed Organizador" />;
 
+=======
+
+import { Text } from "react-native";
+import {
+  Bottom,
+  DatePicker,
+  Header,
+  Input,
+  MainContainer,
+  SingleChoicePicker,
+} from "../components";
+
+import {
+  Login,
+  LoginScreen,
+  TelaTemp,
+  CadastroScreen,
+  FeedVisitanteScreen,
+  FeedOrganizadorScreen,
+} from "../screens";
+
+const Stack = createNativeStackNavigator();
+
+>>>>>>> e844128aa400aa1a0e8918897e5291c3fa346d52
 export default function AppNavigator() {
-  
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Login"
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
         <Stack.Screen

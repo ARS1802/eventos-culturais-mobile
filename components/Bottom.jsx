@@ -1,44 +1,50 @@
 import React from "react";
+<<<<<<< HEAD
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Bottom({ tipo, onFiltro }) {
   const navigation = useNavigation();
+=======
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import colors from "../assets/colors";
+>>>>>>> e844128aa400aa1a0e8918897e5291c3fa346d52
 
+export function Bottom({
+  children,
+  transparent = false,
+  direction = "column",
+  style,
+}) {
   return (
-    <View style={styles.container}>
-      {/* Botão filtro aparece pra visitante e organizador */}
-      <TouchableOpacity style={styles.botao} onPress={onFiltro}>
-        <Text style={styles.icone}>≡</Text>
-      </TouchableOpacity>
-
-      {/* Botão novo evento só pro organizador */}
-      {tipo === "organizador" && (
-        <TouchableOpacity
-          style={styles.botao}
-          onPress={() => navigation.navigate("NovoEvento")}
-        >
-          <Text style={styles.icone}>+</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+    <SafeAreaView
+      edges={["bottom"]}
+      style={[
+        styles.container,
+        { backgroundColor: transparent ? "transparent" : colors.primary },
+        style,
+      ]}
+    >
+      <View style={[styles.content, { flexDirection: direction }]}> 
+        {children}
+      </View>
+    </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    height: 60,
-    backgroundColor: "#D1A38F",
-    flexDirection: "row",
-    justifyContent: "space-around",
+    minHeight: 60,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    justifyContent: "center",
     alignItems: "center",
   },
-  botao: {
-    padding: 10,
-  },
-  icone: {
-    color: "#F4EBDD",
-    fontSize: 24,
-    fontWeight: "bold",
+  content: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
