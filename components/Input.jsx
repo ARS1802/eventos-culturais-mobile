@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import COLORS from "../assets/colors";
+import { Ionicons } from "@expo/vector-icons";
 
 export function Input({ label, error, secureTextEntry, ...props }) {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
@@ -20,11 +21,20 @@ export function Input({ label, error, secureTextEntry, ...props }) {
       {label && <Text style={styles.label}>{label}</Text>}
 
       <View style={[styles.inputContainer, error && styles.inputError]}>
-        <TextInput style={styles.input} secureTextEntry={isSecure} {...props} />
+        <TextInput
+          style={styles.input}
+          secureTextEntry={isSecure}
+          placeholderTextColor={COLORS.white}
+          {...props}
+        />
 
         {secureTextEntry && (
           <TouchableOpacity onPress={() => setIsSecure(!isSecure)}>
-            <Text style={styles.eye}>{isSecure ? "👁️" : "🙈"}</Text>
+            <Ionicons
+              name={isSecure ? "eye" : "eye-off"}
+              size={20}
+              color={COLORS.primary}
+            />
           </TouchableOpacity>
         )}
       </View>

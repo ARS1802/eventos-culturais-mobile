@@ -8,6 +8,7 @@ import {
   Input,
   MainContainer,
   SingleChoicePicker,
+  MultipleChoicePicker,
 } from "../components";
 
 export const LoginScreen = () => {
@@ -17,6 +18,7 @@ export const LoginScreen = () => {
   const [erroEmail, setErroEmail] = useState("");
   const [erroSenha, setErroSenha] = useState("");
   const [opcao, setOpcao] = useState("");
+  const [categorias, setCategorias] = useState([]);
 
   function validar() {
     let valido = true;
@@ -76,6 +78,27 @@ export const LoginScreen = () => {
             description: "Esta é outra opção",
             value: "B",
           },
+        ]}
+      />
+      <MultipleChoicePicker
+        selected={categorias}
+        onChange={setCategorias}
+        options={[
+          {
+            label: "Artes Visuais",
+            description: "Esta é uma opção",
+            value: "A",
+          },
+          {
+            label: "Música",
+            description: "Esta é outra opção",
+            value: "B",
+          },
+          {
+            label: "Teatro",
+            description: "Esta é outra opção",
+            value: "C",
+          }
         ]}
       />
       <TouchableOpacity

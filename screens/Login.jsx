@@ -7,6 +7,7 @@ import {
   Input,
   MainContainer,
   SingleChoicePicker,
+  MultipleChoicePicker,
 } from "../components";
 import colors from "../assets/colors";
 
