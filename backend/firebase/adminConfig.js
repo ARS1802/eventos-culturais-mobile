@@ -1,5 +1,6 @@
 import { applicationDefault, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase/auth";
 
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   throw new Error(
@@ -14,3 +15,4 @@ const app = getApps().length
     });
 
 export const adminDb = getFirestore(app);
+//export const adminAuth = getAuth(app);
