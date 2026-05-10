@@ -9,4 +9,5 @@ export default{
   text: '#3A3A3A',
   error: '#D9534F',
   white: '#FFFFFF',
+  placeholder: "#D8A7B1'",
 };
