@@ -12,30 +12,44 @@ export async function registerUser(params: {
   email: string;
   password: string;
   role: UserRole;
-}) {
-  console.log(auth);
-  const newUserCredentials = await createUserWithEmailAndPassword(
-    auth,
-    params.email,
-    params.password,
-  );
-
-  const uid = newUserCredentials.user.uid;
-  const today = new Date();
-  const newUser: UserProfile = {
-    id: uid,
-    name: params.name,
-    email: params.email,
-    role: params.role,
-    createdAt: today,
-    updatedAt: today,
-  };
-
+}): Promise<string> {
   try {
-    await setDoc(userDoc(uid), newUser);
-  } catch (e) {
-    console.log("ERRO!\n" + e);
-    return "ERRO!\n" + e;
+    const newUserCredentials = await createUserWithEmailAndPassword(
+      auth,
+      params.email,
+      params.password,
+    );
+
+    const uid = newUserCredentials.user.uid;
+    const today = new Date();
+    const newUser: UserProfile = {
+      id: uid,
+      name: params.name,
+      email: params.email,
+      role: params.role,
+      createdAt: today,
+      updatedAt: today,
+    };
+
+    try {
+      await setDoc(userDoc(uid), newUser);
+    } catch (e) {
+      console.log("ERRO no Firestore!\n" + e);
+      return "FIRESTORE_ERROR";
+    }
+    return uid;
+  } catch (e: any) {
+    console.log("ERRO no Auth!\n" + e);
+    if (e.code === "auth/email-already-in-use") {
+      return "EMAIL_EXISTS";
+    } else if (e.code === "auth/invalid-email") {
+      return "INVALID_EMAIL";
+    } else if (e.code === "auth/weak-password") {
+      return "WEAK_PASSWORD";
+    } else if (e.code === "auth/configuration-not-found") {
+      return "AUTH_CONFIG_ERROR";
+    } else {
+      return "AUTH_ERROR";
+    }
   }
-  return uid;
 }
