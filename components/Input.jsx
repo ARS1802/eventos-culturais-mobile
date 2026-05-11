@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useState,
+} from "react";
 import {
   View,
   TextInput,
@@ -8,28 +12,95 @@ import {
 } from "react-native";
 import COLORS from "../assets/colors";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  validarEmail,
+  validarSenha,
+  validarNome,
+} from "../utils/validation.js";
 
-export function Input({ label, error, secureTextEntry, ...props }) {
+const validators = {
+  email: validarEmail,
+  senha: validarSenha,
+  nome: validarNome,
+};
+
+
+export const Input = forwardRef(function Input(
+  {
+    label,
+    secureTextEntry,
+    validationType,
+    onChangeText,
+    onValidation,
+    value,
+    error: externalError,
+    ...props
+  },
+  ref
+) {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
   {
     /* Importante para verificação se a senha está visível */
   }
+  const [error, setError] = useState("");
+
+  function validateText(text) {
+    const validator = validators[validationType];
+    const validationError = validator ? validator(text) : "";
+
+    setError(validationError);
+
+    if (onValidation) {
+      onValidation(validationError);
+    }
+
+    return validationError;
+  }
+
+  function handleValidation(text) {
+    validateText(text);
+
+    if (onChangeText) {
+      onChangeText(text);
+    }
+  }
+
+  useImperativeHandle(ref, () => ({
+    validate() {
+      return validateText(value);
+    },
+  }));
+
+  const currentError = externalError || error;
 
   return (
     <View style={styles.container}>
-      {/* Label */}
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && (
+        <Text style={styles.label}>
+          {label}
+        </Text>
+      )}
 
-      <View style={[styles.inputContainer, error && styles.inputError]}>
+      <View
+        style={[
+          styles.inputContainer,
+          currentError && styles.inputError,
+        ]}
+      >
+
         <TextInput
           style={styles.input}
           secureTextEntry={isSecure}
-          placeholderTextColor={COLORS.white}
+          placeholderTextColor={COLORS.primary}
+          value={value}
+          onChangeText={handleValidation}
           {...props}
         />
 
         {secureTextEntry && (
-          <TouchableOpacity onPress={() => setIsSecure(!isSecure)}>
+          <TouchableOpacity
+            onPress={() => setIsSecure(!isSecure)}
+          >
             <Ionicons
               name={isSecure ? "eye" : "eye-off"}
               size={20}
@@ -37,11 +108,31 @@ export function Input({ label, error, secureTextEntry, ...props }) {
             />
           </TouchableOpacity>
         )}
+
       </View>
 
-      {error && <Text style={styles.error}>{error}</Text>}
+      {currentError ? (
+        <Text style={styles.error}>
+          {currentError}
+        </Text>
+      ) : null}
+
     </View>
   );
+});
+
+export function validarInputs(inputRefs = []) {
+  let firstError = "";
+
+  inputRefs.forEach((inputRef) => {
+    const validationError = inputRef.current?.validate();
+
+    if (!firstError && validationError) {
+      firstError = validationError;
+    }
+  });
+
+  return firstError;
 }
 
 const styles = StyleSheet.create({
@@ -51,7 +142,7 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 5,
     fontWeight: "bold",
-    color: COLORS.text,
+    color: COLORS.primary,
   },
   inputContainer: {
     flexDirection: "row",
@@ -65,7 +156,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     padding: 12,
-    color: COLORS.text,
+    color: COLORS.primary,
   },
   inputError: {
     borderColor: COLORS.error,
