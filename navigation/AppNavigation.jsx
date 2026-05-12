@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import {
   Login,
-  LoginScreen,
-  TelaTemp,
   CadastroScreen,
   FeedVisitanteScreen,
   FeedOrganizadorScreen,
+  RecuperarSenha,
 } from "../screens";
 
 const Stack = createNativeStackNavigator();
@@ -20,13 +18,11 @@ export default function AppNavigator() {
         initialRouteName="Login"
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
-        <Stack.Screen
-          name="FeedOrganizador"
-          component={FeedOrganizadorScreen}
-        />
+        <Stack.Screen name="FeedOrganizador" component={FeedOrganizadorScreen} />
+        <Stack.Screen name="RecuperarSenha" component={RecuperarSenha} />
       </Stack.Navigator>
     </NavigationContainer>
   );

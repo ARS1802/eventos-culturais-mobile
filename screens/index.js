@@ -6,3 +6,4 @@ export {
   FeedOrganizadorScreen,
 } from "./ScreensTest";
 export { Login } from "./Login";
+export { RecuperarSenha } from "./RecuperarSenha";

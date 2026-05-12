@@ -1,17 +1,8 @@
 import React, { useState } from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
-import {
-  Bottom,
-  DatePicker,
-  Header,
-  Input,
-  MainContainer,
-  SingleChoicePicker,
-  MultipleChoicePicker,
-} from "../components";
+import { Bottom, Header, Input, MainContainer } from "../components";
 import colors from "../assets/colors";
 
-// encapsulamento das coisas que vão no Bottom
 function ButtonBottom({ color, title, onPress }) {
   return (
     <TouchableOpacity
@@ -31,22 +22,20 @@ function LoginButton({ onPress }) {
   );
 }
 
-export const Login = () => {
+export const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-
   const [erroEmail, setErroEmail] = useState("");
   const [erroSenha, setErroSenha] = useState("");
-  const [opcao, setOpcao] = useState("");
 
   function validar() {
     let valido = true;
 
     if (email === "") {
       setErroEmail("Email é obrigatório");
+      valido = false;
     } else {
       setErroEmail("");
-      alert("OK");
     }
 
     if (senha === "") {
@@ -57,49 +46,46 @@ export const Login = () => {
     }
 
     if (valido) {
-      alert("OK");
+      alert("Login OK!");
     } else {
       alert("Preencha os campos corretamente");
     }
   }
-  return (
-    <MainContainer
-      top={<Header title="Sacada Cultural" />}
-      bottom={
-        <Bottom transparent={true}>
-          <ButtonBottom
-            title="Cadastre-se!"
-            color={colors.primary}
-            onPress={() => alert("segue para CadastroScreen")}
-          />
-          <ButtonBottom
-            title="Recuperar Senha"
-            color={colors.secondary}
-            onPress={() => alert("segue para RetrieveScreen")}
-          />
-        </Bottom>
-      }
-    >
-      <Input
-        label="Email"
-        placeholder="Digite seu email"
-        value={email}
-        onChangeText={setEmail}
-        error={erroEmail}
-      />
-      <Input
-        label="Senha"
-        placeholder="Digite sua senha"
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry
-        error={erroSenha}
-      />
 
-      <LoginButton onPress={validar} />
-    </MainContainer>
-  );
-};
+  return (
+  <MainContainer
+    top={<Header title="Sacada Cultural" />}
+    bottom={
+      <Bottom transparent={true}>
+        <ButtonBottom
+          title="Cadastre-se!"
+          color={colors.primary}
+          onPress={() => alert("segue para CadastroScreen")}
+        />
+      </Bottom>
+    }
+  >
+    <Input
+      label="Email"
+      placeholder="Digite seu email"
+      value={email}
+      onChangeText={setEmail}
+      error={erroEmail}
+    />
+    <Input
+      label="Senha"
+      placeholder="Digite sua senha"
+      value={senha}
+      onChangeText={setSenha}
+      secureTextEntry
+      error={erroSenha}
+    />
+    <TouchableOpacity onPress={() => navigation.navigate("RecuperarSenha")}>
+      <Text style={styles.linkRecuperar}>Esqueceu sua senha?</Text>
+    </TouchableOpacity>
+    <LoginButton onPress={validar} />
+  </MainContainer>
+);};
 
 const styles = StyleSheet.create({
   buttonBottom: {
@@ -124,5 +110,12 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: colors.white,
     fontWeight: "bold",
+  },
+  linkRecuperar: {
+    color: colors.primary,
+    textDecorationLine: "underline",
+    marginTop: 8,
+    marginBottom: 4,
+    fontSize: 13,
   },
 });
