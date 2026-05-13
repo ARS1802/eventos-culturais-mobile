@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import React, { useRef, useState } from "react";
+import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
 import {
   Bottom,
-  DatePicker,
   Header,
   Input,
   MainContainer,
-  SingleChoicePicker,
-  MultipleChoicePicker,
+  validarInputs,
 } from "../components";
 import colors from "../assets/colors";
 
@@ -31,37 +29,30 @@ function LoginButton({ onPress }) {
   );
 }
 
-export const Login = () => {
+export const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  const [erroEmail, setErroEmail] = useState("");
-  const [erroSenha, setErroSenha] = useState("");
-  const [opcao, setOpcao] = useState("");
+  const emailInputRef = useRef(null);
+  const senhaInputRef = useRef(null);
 
-  function validar() {
-    let valido = true;
+  function handleButtonEntrar() {
 
-    if (email === "") {
-      setErroEmail("Email é obrigatório");
-    } else {
-      setErroEmail("");
-      alert("OK");
+    const erro = validarInputs([emailInputRef, senhaInputRef]);
+
+    if (erro) {
+      alert(erro);
+      return;
     }
 
-    if (senha === "") {
-      setErroSenha("Senha é obrigatória");
-      valido = false;
-    } else {
-      setErroSenha("");
-    }
+    alert("Login OK 🚀");
 
-    if (valido) {
-      alert("OK");
-    } else {
-      alert("Preencha os campos corretamente");
-    }
+    console.log({
+      email,
+      senha,
+    });
   }
+
   return (
     <MainContainer
       top={<Header title="Sacada Cultural" />}
@@ -70,33 +61,43 @@ export const Login = () => {
           <ButtonBottom
             title="Cadastre-se!"
             color={colors.primary}
-            onPress={() => alert("segue para CadastroScreen")}
-          />
-          <ButtonBottom
-            title="Recuperar Senha"
-            color={colors.secondary}
-            onPress={() => alert("segue para RetrieveScreen")}
+            onPress={() => navigation.navigate("Cadastro")}
           />
         </Bottom>
       }
     >
       <Input
+        ref={emailInputRef}
         label="Email"
         placeholder="Digite seu email"
         value={email}
         onChangeText={setEmail}
-        error={erroEmail}
+        validationType="email"
       />
       <Input
+        ref={senhaInputRef}
         label="Senha"
         placeholder="Digite sua senha"
         value={senha}
         onChangeText={setSenha}
         secureTextEntry
-        error={erroSenha}
+        validationType="senha"
       />
+      <View style={styles.linkContainer}>
 
-      <LoginButton onPress={validar} />
+  <TouchableOpacity
+    onPress={() =>
+      alert("Ir para Recuperar Senha")
+    }
+  >
+    <Text style={styles.linkText}>
+      Esqueceu sua senha?
+    </Text>
+  </TouchableOpacity>
+
+    </View>
+
+      <LoginButton onPress={handleButtonEntrar} />
     </MainContainer>
   );
 };
@@ -125,4 +126,17 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
   },
+  linkContainer: {
+  width: "100%",
+  alignItems: "flex-end",
+  marginTop: -5,
+  marginBottom: 15,
+},
+
+linkText: {
+  color: "#2F80ED",
+  textDecorationLine: "underline",
+  fontSize: 13,
+  fontWeight: "500",
+},
 });

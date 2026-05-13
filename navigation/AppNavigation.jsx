@@ -20,7 +20,7 @@ export default function AppNavigator() {
         initialRouteName="Login"
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
         <Stack.Screen
