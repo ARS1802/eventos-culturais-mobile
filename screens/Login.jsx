@@ -179,7 +179,7 @@ export const Login = ({ navigation }) => {
       />
       <TouchableOpacity
         disabled={submitting}
-        onPress={() => navigation.navigate("RecuperarSenha")}
+        onPress={() => navigation.navigate("Recuperar Senha")}
       >
         <Text style={styles.linkRecuperar}>Esqueceu sua senha?</Text>
       </TouchableOpacity>

@@ -128,14 +128,14 @@ export const CadastroScreen = ({ navigation }) => {
         onSelect={setTipoUsuario}
         options={[
           {
-            label: "Usuário",
+            label: "Visitante",
             description: "Quero encontrar eventos culturais",
-            value: "usuario",
+            value: "visitor",
           },
           {
             label: "Organizador",
             description: "Quero cadastrar e gerenciar eventos",
-            value: "organizador",
+            value: "organizer",
           },
         ]}
       />
