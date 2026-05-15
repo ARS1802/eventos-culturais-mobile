@@ -40,23 +40,6 @@ export function validarSenha(senha) {
     return "Senha é obrigatória";
   }
 
-  // if (!REGEX_SENHA_FORTE.test(senha)) {
-
-  //   if (senha.length < 8) {
-  //     return "Senha deve ter no mínimo 8 caracteres";
-  //   }
-
-  //   if (!/[A-Z]/.test(senha)) {
-  //     return "Senha deve ter pelo menos 1 letra maiúscula";
-  //   }
-
-  //   if (!/\d/.test(senha)) {
-  //     return "Senha deve ter pelo menos 1 número";
-  //   }
-
-  //   return "Senha inválida";
-  // }
-
   return "";
 }
 
@@ -77,8 +60,20 @@ export function validarNome(nome) {
     return "Nome é obrigatório";
   }
 
-  if (nome.trim().length < 3) {
-    return "Nome deve ter pelo menos 3 caracteres";
+  if (nome.trim().length <= 3) {
+    return "Nome deve ter mais de 3 caracteres";
+  }
+
+  if (nome.trim().length >= 64) {
+    return "Nome deve ter menos de 64 caracteres";
+  }
+
+  if (/\d/.test(nome)) {
+    return "Nome não pode conter números";
+  }
+
+  if (/[^\p{L}\s]/u.test(nome)) {
+    return "Nome não pode conter caracteres especiais";
   }
 
   return "";

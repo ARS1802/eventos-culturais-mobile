@@ -122,6 +122,24 @@ export function AuthProvider({ children }) {
     }
   }, [carregarPerfil]);
 
+  const definirUsuarioAtual = useCallback(
+    async (perfilConhecido = null) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        setFirebaseUser(auth.currentUser);
+        return await carregarPerfil(auth.currentUser, perfilConhecido);
+      } catch (e) {
+        setError(e);
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [carregarPerfil],
+  );
+
   useEffect(() => {
     let isMounted = true;
 
@@ -163,8 +181,18 @@ export function AuthProvider({ children }) {
       login,
       logout,
       refreshUsuario,
+      definirUsuarioAtual,
     }),
-    [firebaseUser, usuario, loading, error, login, logout, refreshUsuario],
+    [
+      firebaseUser,
+      usuario,
+      loading,
+      error,
+      login,
+      logout,
+      refreshUsuario,
+      definirUsuarioAtual,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
