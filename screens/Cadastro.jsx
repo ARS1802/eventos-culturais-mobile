@@ -10,41 +10,71 @@ import {
 } from "../components";
 import colors from "../assets/colors";
 import { validarConfirmacaoSenha } from "../utils/validation";
+import { registerUser } from "../backend/firebase/registerUser";
+import { getUser } from "../backend/firebase/getUser";
+import { useAuth } from "../navigation/contexts/AuthContext";
+
+const cadastroErrorMessages = {
+  EMAIL_EXISTS: "Este email já está cadastrado.",
+  INVALID_EMAIL: "Email inválido.",
+  WEAK_PASSWORD: "A senha é muito fraca.",
+  AUTH_CONFIG_ERROR: "A autenticação ainda não foi configurada no Firebase.",
+  FIRESTORE_ERROR: "Usuário criado, mas não foi possível salvar o perfil.",
+  AUTH_ERROR: "Não foi possível cadastrar. Tente novamente.",
+};
+
+function getCadastroErrorMessage(result) {
+  return cadastroErrorMessages[result] ?? "";
+}
 
 // encapsulamento das coisas que vão no Bottom
-function ButtonBottom({ color, title, onPress }) {
+function ButtonBottom({ color, title, onPress, disabled }) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.buttonBottom, { backgroundColor: color }]}
+      disabled={disabled}
+      style={[
+        styles.buttonBottom,
+        { backgroundColor: color },
+        disabled && styles.buttonDisabled,
+      ]}
     >
       <Text style={styles.buttonBottomText}>{title}</Text>
     </TouchableOpacity>
   );
 }
 
-function CadastroButton({ onPress }) {
+function CadastroButton({ onPress, disabled }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.loginButton}>
-      <Text style={styles.loginButtonText}>Cadastrar</Text>
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      style={[styles.loginButton, disabled && styles.buttonDisabled]}
+    >
+      <Text style={styles.loginButtonText}>
+        {disabled ? "Cadastrando..." : "Cadastrar"}
+      </Text>
     </TouchableOpacity>
   );
 }
 
-export const CadastroScreen = ({ navigation }) => {
+export const Cadastro = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [nome, setNome] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erroConfirmarSenha, setErroConfirmarSenha] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { definirUsuarioAtual } = useAuth();
 
   const emailInputRef = useRef(null);
   const senhaInputRef = useRef(null);
+  const nomeInputRef = useRef(null);
 
   const [tipoUsuario, setTipoUsuario] = useState("");
 
-  function handleButtonCadastro() {
-
-    const erro = validarInputs([emailInputRef, senhaInputRef]);
+  async function handleButtonCadastro() {
+    const erro = validarInputs([emailInputRef, senhaInputRef, nomeInputRef]);
     const erroConfirmacao = validarConfirmacaoSenha(senha, confirmarSenha);
 
     if (erro) {
@@ -63,13 +93,49 @@ export const CadastroScreen = ({ navigation }) => {
       return;
     }
 
-    alert("Cadastro OK");
+    setSubmitting(true);
 
-    console.log({
-      email,
-      senha,
-      tipoUsuario,
-    });
+    try {
+      const emailNormalizado = email.trim().toLowerCase();
+      const uid = await registerUser({
+        name: nome.trim(),
+        email: emailNormalizado,
+        password: senha,
+        role: tipoUsuario,
+      });
+
+      const mensagemErro = getCadastroErrorMessage(uid);
+
+      if (mensagemErro) {
+        alert(mensagemErro);
+        return;
+      }
+
+      const usuarioCriado = await getUser({ id: uid });
+
+      if (!usuarioCriado) {
+        alert("Cadastro criado, mas o perfil não foi encontrado no banco.");
+        return;
+      }
+
+      await definirUsuarioAtual(usuarioCriado);
+
+      alert("Cadastro realizado com sucesso.");
+
+      if (usuarioCriado.role === "visitor") {
+        navigation.navigate("FeedVisitante");
+        return;
+      }
+
+      if (usuarioCriado.role === "organizer") {
+        navigation.navigate("FeedOrganizador");
+      }
+    } catch (e) {
+      console.error("Erro ao cadastrar usuário:", e);
+      alert("Não foi possível cadastrar. Tente novamente.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleConfirmarSenha(text) {
@@ -93,11 +159,20 @@ export const CadastroScreen = ({ navigation }) => {
           <ButtonBottom
             title="Já tenho conta"
             color={colors.primary}
+            disabled={submitting}
             onPress={() => navigation.navigate("Login")}
           />
         </Bottom>
       }
     >
+      <Input
+        ref={nomeInputRef}
+        label="Nome"
+        placeholder="Qual seu nome?"
+        value={nome}
+        onChangeText={setNome}
+        validationType="nome"
+      />
       <Input
         ref={emailInputRef}
         label="Email"
@@ -105,6 +180,8 @@ export const CadastroScreen = ({ navigation }) => {
         value={email}
         onChangeText={setEmail}
         validationType="email"
+        autoCapitalize="none"
+        keyboardType="email-address"
       />
       <Input
         ref={senhaInputRef}
@@ -139,7 +216,7 @@ export const CadastroScreen = ({ navigation }) => {
           },
         ]}
       />
-      <CadastroButton onPress={handleButtonCadastro} />
+      <CadastroButton onPress={handleButtonCadastro} disabled={submitting} />
     </MainContainer>
   );
 };
@@ -167,6 +244,9 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: colors.white,
     fontWeight: "bold",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   linkContainer: {
     width: "100%",

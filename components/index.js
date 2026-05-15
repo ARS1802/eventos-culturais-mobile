@@ -6,3 +6,4 @@ export { MainContainer } from "./MainContainer";
 export { SingleChoicePicker } from "./SingleChoicePicker";
 export { Button } from "./Button";
 export { MultipleChoicePicker } from "./MultipleChoicePicker";
+export { Evento } from "./Evento";

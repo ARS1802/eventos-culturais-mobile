@@ -3,7 +3,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   Login,
-  CadastroScreen,
+  Cadastro,
+  EventoTesteScreen,
   FeedVisitanteScreen,
   FeedOrganizadorScreen,
   RecuperarSenha,
@@ -15,11 +16,12 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="EventoTeste"
         screenOptions={{ headerShown: false }}
       >
+        <Stack.Screen name="EventoTeste" component={EventoTesteScreen} />
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Cadastro" component={CadastroScreen} />
+        <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
         <Stack.Screen
           name="FeedOrganizador"

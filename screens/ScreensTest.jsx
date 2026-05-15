@@ -11,6 +11,7 @@ import {
   MainContainer,
   SingleChoicePicker,
   MultipleChoicePicker,
+  Evento,
   validarInputs,
 } from "../components";
 
@@ -142,26 +143,80 @@ export const TelaTemp = ({ nome }) => {
 export const CadastroScreen = () => {
   return <TelaTemp nome={"Cadastro"} />;
 };
+
+export const EventoTesteScreen = () => {
+  return (
+    <MainContainer top={<Header title="Teste Evento" />}>
+      <Evento
+        Titulo="Mostra de Cinema"
+        Data="2026-05-15"
+        NomeOrganizador="Casa da Cultura"
+        Estrelas={4}
+        ImgURL=""
+      />
+      <Evento
+        Titulo="Sarau Cultural"
+        Data="20/05/2026"
+        NomeOrganizador="Coletivo Arte Viva"
+        Estrelas={3}
+        Comentario="Nao gostei! Fui mal atendido. Nao recomendo."
+        ImgURL=""
+      />
+      <Evento
+        Titulo="Festival de Musica Independente"
+        Data={new Date()}
+        NomeOrganizador="Palco Aberto"
+        Estrelas={5}
+        Comentario=""
+        ImgURL="https://picsum.photos/300/300"
+      />
+    </MainContainer>
+  );
+};
+
 export const FeedVisitanteScreen = () => {
   const { usuario, firebaseUser, logout, loading } = useAuth();
   return (
-    <>
+    <MainContainer top={<Header title="Feed Visitante" />}>
       <TelaTemp nome={usuario} />
       <Text>
         {"\n"}FEED - VISITANTE - SCREEN{"\n"}
       </Text>
-    </>
+      <Evento
+        Titulo="Mostra de Cinema"
+        Data="2026-05-15"
+        NomeOrganizador="Casa da Cultura"
+        Estrelas={4}
+        ImgURL=""
+      />
+      <Evento
+        Titulo="Sarau Cultural"
+        Data="2026-05-20"
+        NomeOrganizador="Coletivo Arte Viva"
+        Estrelas={3}
+        Comentario="Nao gostei! Fui mal atendido. Nao recomendo."
+        ImgURL=""
+      />
+    </MainContainer>
   );
 };
 export const FeedOrganizadorScreen = () => {
   const { usuario, firebaseUser, logout, loading } = useAuth();
   return (
-    <>
+    <MainContainer top={<Header title="Feed Organizador" />}>
       <TelaTemp nome={usuario} />;
       <Text>
         {"\n"}FEED - ORGANIZADOR - SCREEN{"\n"}
       </Text>
       <TelaTemp nome={firebaseUser} />
-    </>
+      <Evento
+        Titulo="Evento publicado"
+        Data={new Date()}
+        NomeOrganizador={usuario?.name}
+        Estrelas={5}
+        Comentario="Este card esta usando dados estaticos para testar o componente."
+        ImgURL=""
+      />
+    </MainContainer>
   );
 };
