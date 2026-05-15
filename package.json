@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "admin:test": "tsc -p tsconfig.backend.json && node dist/backend/firebase/testes.js",
+    "back:test": "tsc -p tsconfig.backend.json && node dist/backend/firebase/testes.js",
+    "test": "tsc -p tsconfig.backend.json && npm run web",
     "print": "echo testelegal!"
   },
   "dependencies": {

@@ -10,13 +10,9 @@ import { getUser } from "./getUser.js";
 //   role: "visitor",
 // });
 
-//console.log(obj);
-//const usuarioCadastrado = userDoc(obj);
+// console.log(obj);
+// //const usuarioCadastrado = userDoc(obj);
 
 // Exemplo de uso da função resetPassword
-
-const usuario = await getUser({ email: "arthurramospvp@gmail.com" });
+const usuario = await resetPassword("arthurramospvp@gmail.com");
 console.log(usuario);
-console.log(usuario.uid);
-console.log(usuario.email);
-console.log(usuario.role);

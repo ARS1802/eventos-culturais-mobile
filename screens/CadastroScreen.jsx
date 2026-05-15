@@ -91,7 +91,7 @@ export const CadastroScreen = ({ navigation }) => {
       bottom={
         <Bottom transparent={false}>
           <ButtonBottom
-            title="Ja tenho conta"
+            title="Já tenho conta"
             color={colors.primary}
             onPress={() => navigation.navigate("Login")}
           />

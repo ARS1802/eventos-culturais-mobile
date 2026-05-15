@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
+import { Alert, TouchableOpacity, Text, StyleSheet } from "react-native";
 import {
   Bottom,
   Header,
@@ -8,23 +8,73 @@ import {
   validarInputs,
 } from "../components";
 import colors from "../assets/colors";
+import { getUser } from "../backend/firebase/getUser";
+import { useAuth } from "../navigation/contexts/AuthContext";
 
-// encapsulamento das coisas que vão no Bottom
-function ButtonBottom({ color, title, onPress }) {
+function getLoginErrorMessage(error) {
+  if (error?.code === "auth/invalid-email") {
+    return "Email inválido.";
+  }
+
+  if (error?.code === "auth/invalid-credential") {
+    return "Email ou senha incorretos.";
+  }
+
+  if (
+    error?.code === "auth/user-not-found" ||
+    error?.code === "auth/wrong-password"
+  ) {
+    return "Email ou senha incorretos.";
+  }
+
+  if (error?.code === "auth/user-disabled") {
+    return "Esta conta foi desativada.";
+  }
+
+  if (error?.code === "auth/network-request-failed") {
+    return "Não foi possível conectar ao Firebase. Verifique sua internet.";
+  }
+
+  if (error?.code === "auth/configuration-not-found") {
+    return "A autenticação ainda não foi configurada no Firebase.";
+  }
+
+  return "Não foi possível entrar. Tente novamente.";
+}
+
+function isWrongPasswordError(error) {
+  return (
+    error?.code === "auth/invalid-credential" ||
+    error?.code === "auth/wrong-password"
+  );
+}
+
+function ButtonBottom({ color, title, onPress, disabled }) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.buttonBottom, { backgroundColor: color }]}
+      disabled={disabled}
+      style={[
+        styles.buttonBottom,
+        { backgroundColor: color },
+        disabled && styles.buttonDisabled,
+      ]}
     >
       <Text style={styles.buttonBottomText}>{title}</Text>
     </TouchableOpacity>
   );
 }
 
-function LoginButton({ onPress }) {
+function LoginButton({ onPress, disabled, navigation}) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.loginButton}>
-      <Text style={styles.loginButtonText}>Login</Text>
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      style={[styles.loginButton, disabled && styles.buttonDisabled]}
+    >
+      <Text style={styles.loginButtonText}>
+        {disabled ? "Entrando..." : "Login "}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -32,25 +82,67 @@ function LoginButton({ onPress }) {
 export const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
 
-  const emailInputRef = useRef(null);
-  const senhaInputRef = useRef(null);
+  const emailRef = useRef(null);
+  const senhaRef = useRef(null);
 
-  function handleButtonEntrar() {
-
-    const erro = validarInputs([emailInputRef, senhaInputRef]);
+  async function entrar() {
+    const erro = validarInputs([emailRef, senhaRef]);
 
     if (erro) {
-      alert(erro);
+      alert("Login " + erro);
       return;
     }
 
-    alert("Login OK 🚀");
+    if (!senha) {
+      alert("Login " + "Senha é obrigatória");
+      return;
+    }
 
-    console.log({
-      email,
-      senha,
-    });
+    setSubmitting(true);
+
+    try {
+      const emailNormalizado = email.trim().toLowerCase();
+      const usuarioCadastrado = await getUser({ email: emailNormalizado });
+
+      if (!usuarioCadastrado) {
+        alert("Login " + "Usuário não existe.");
+        return;
+      }
+
+      const usuarioLogado = await login(
+        emailNormalizado,
+        senha,
+        usuarioCadastrado,
+      );
+
+      if (!usuarioLogado) {
+        alert(
+          "Login " +
+            "Usuário autenticado, mas não encontrado no banco de dados.",
+        );
+        return;
+      }
+
+      alert("Login " + "Usuário logado com sucesso.");
+
+      if (usuarioCadastrado.role == "visitor") {
+        navigation.navigate("FeedVisitante");
+      }
+      if (usuarioCadastrado.role == "organizer") {
+        navigation.navigate("FeedOrganizador");
+      }
+    } catch (error) {
+      alert(
+        "Login " + isWrongPasswordError(error)
+          ? "Senha incorreta."
+          : getLoginErrorMessage(error),
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -61,43 +153,37 @@ export const Login = ({ navigation }) => {
           <ButtonBottom
             title="Cadastre-se!"
             color={colors.primary}
+            disabled={submitting}
             onPress={() => navigation.navigate("Cadastro")}
           />
         </Bottom>
       }
     >
       <Input
-        ref={emailInputRef}
+        ref={emailRef}
         label="Email"
         placeholder="Digite seu email"
         value={email}
         onChangeText={setEmail}
         validationType="email"
+        autoCapitalize="none"
+        keyboardType="email-address"
       />
       <Input
-        ref={senhaInputRef}
+        ref={senhaRef}
         label="Senha"
         placeholder="Digite sua senha"
         value={senha}
         onChangeText={setSenha}
         secureTextEntry
-        validationType="senha"
       />
-      <View style={styles.linkContainer}>
-
-  <TouchableOpacity
-    onPress={() =>
-      alert("Ir para Recuperar Senha")
-    }
-  >
-    <Text style={styles.linkText}>
-      Esqueceu sua senha?
-    </Text>
-  </TouchableOpacity>
-
-    </View>
-
-      <LoginButton onPress={handleButtonEntrar} />
+      <TouchableOpacity
+        disabled={submitting}
+        onPress={() => navigation.navigate("RecuperarSenha")}
+      >
+        <Text style={styles.linkRecuperar}>Esqueceu sua senha?</Text>
+      </TouchableOpacity>
+      <LoginButton onPress={entrar} disabled={submitting} />
     </MainContainer>
   );
 };
@@ -126,17 +212,14 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
   },
-  linkContainer: {
-  width: "100%",
-  alignItems: "flex-end",
-  marginTop: -5,
-  marginBottom: 15,
-},
-
-linkText: {
-  color: "#2F80ED",
-  textDecorationLine: "underline",
-  fontSize: 13,
-  fontWeight: "500",
-},
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  linkRecuperar: {
+    color: colors.primary,
+    textDecorationLine: "underline",
+    marginTop: 8,
+    marginBottom: 4,
+    fontSize: 13,
+  },
 });

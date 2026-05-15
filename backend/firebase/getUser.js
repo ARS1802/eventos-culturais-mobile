@@ -1,8 +1,23 @@
-import { getDocs, query, where, getDoc } from "firebase/firestore";
 import {
-  usersCollection,
-  userDoc,
-} from "../models/firestoreReferences.js";
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "./firebaseConfig.js";
+
+function formatUserProfile(snapshot) {
+  const data = snapshot.data();
+
+  return {
+    id: snapshot.id,
+    ...data,
+    createdAt: data.createdAt?.toDate?.() ?? data.createdAt,
+    updatedAt: data.updatedAt?.toDate?.() ?? data.updatedAt,
+  };
+}
 
 /**
  * Busca um usuário no Firestore pelo id (UID) ou email
@@ -16,22 +31,22 @@ export async function getUser({ id, email } = {}) {
   try {
     if (id) {
       // Busca direta pelo UID
-      const docRef = userDoc(id);
+      const docRef = doc(db, "users", id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        return docSnap.data();
+        return formatUserProfile(docSnap);
       }
       return null;
     }
 
     if (email) {
       // Busca por email usando query
-      const q = query(usersCollection, where("email", "==", email));
+      const q = query(collection(db, "users"), where("email", "==", email));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        return querySnapshot.docs[0].data();
+        return formatUserProfile(querySnapshot.docs[0]);
       }
       return null;
     }

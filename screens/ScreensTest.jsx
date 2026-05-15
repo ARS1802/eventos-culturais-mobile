@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import { TouchableOpacity, Text } from "react-native";
+import { useAuth } from "../navigation/contexts/AuthContext";
+import { converterParaObjeto, formatarValor } from "../utils/converters";
 
 import {
   Bottom,
@@ -24,7 +26,6 @@ export const LoginScreen = () => {
   const [categorias, setCategorias] = useState([]);
 
   function entrar() {
-
     const erro = validarInputs([emailInputRef, senhaInputRef]);
 
     if (erro) {
@@ -32,7 +33,7 @@ export const LoginScreen = () => {
       return;
     }
 
-  alert("Login OK 🚀");
+    alert("Login OK 🚀");
 
     console.log({
       email,
@@ -45,12 +46,7 @@ export const LoginScreen = () => {
   return (
     <MainContainer
       top={<Header title="Espaços Culturais" />}
-      bottom={
-        <Bottom
-          tipo="visitante"
-          onFiltro={() => alert("filtro!")}
-        />
-      }
+      bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
     >
       <Input
         ref={emailInputRef}
@@ -130,7 +126,42 @@ export const LoginScreen = () => {
     </MainContainer>
   );
 };
-export const TelaTemp = ({ nome }) => <Text>{nome}</Text>;
-export const CadastroScreen = () => <TelaTemp nome="Cadastro" />;
-export const FeedVisitanteScreen = () => <TelaTemp nome="Feed Visitante" />;
-export const FeedOrganizadorScreen = () => <TelaTemp nome="Feed Organizador" />;
+
+export const TelaTemp = ({ nome }) => {
+  return (
+    <>
+      {Object.entries(converterParaObjeto(nome)).map(([chave, valor]) => (
+        <Text key={chave}>
+          {chave}: {formatarValor(valor)}
+        </Text>
+      ))}
+    </>
+  );
+};
+
+export const CadastroScreen = () => {
+  return <TelaTemp nome={"Cadastro"} />;
+};
+export const FeedVisitanteScreen = () => {
+  const { usuario, firebaseUser, logout, loading } = useAuth();
+  return (
+    <>
+      <TelaTemp nome={usuario} />
+      <Text>
+        {"\n"}FEED - VISITANTE - SCREEN{"\n"}
+      </Text>
+    </>
+  );
+};
+export const FeedOrganizadorScreen = () => {
+  const { usuario, firebaseUser, logout, loading } = useAuth();
+  return (
+    <>
+      <TelaTemp nome={usuario} />;
+      <Text>
+        {"\n"}FEED - ORGANIZADOR - SCREEN{"\n"}
+      </Text>
+      <TelaTemp nome={firebaseUser} />
+    </>
+  );
+};
