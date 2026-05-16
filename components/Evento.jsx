@@ -23,11 +23,19 @@ function formatarData(valor) {
   let data = valor instanceof Date ? valor : new Date(valor);
 
   if (dataIso) {
-    data = new Date(Number(dataIso[1]), Number(dataIso[2]) - 1, Number(dataIso[3]));
+    data = new Date(
+      Number(dataIso[1]),
+      Number(dataIso[2]) - 1,
+      Number(dataIso[3]),
+    );
   }
 
   if (dataBr) {
-    data = new Date(Number(dataBr[3]), Number(dataBr[2]) - 1, Number(dataBr[1]));
+    data = new Date(
+      Number(dataBr[3]),
+      Number(dataBr[2]) - 1,
+      Number(dataBr[1]),
+    );
   }
 
   if (Number.isNaN(data.getTime())) {

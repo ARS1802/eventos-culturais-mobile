@@ -8,8 +8,8 @@ import {
   validarInputs,
 } from "../components";
 import colors from "../assets/colors";
-import { getUser } from "../backend/firebase/getUser";
-import { resetPassword } from "../backend/firebase/resetPassword";
+import { getUser } from "../backend/firebase/services/getUser";
+import { resetPassword } from "../backend/firebase/services/resetPassword";
 
 function ButtonBottom({ color, title, onPress, disabled }) {
   return (

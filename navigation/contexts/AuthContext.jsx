@@ -14,7 +14,7 @@ import {
 } from "firebase/auth";
 
 import { auth } from "../../backend/firebase/firebaseConfig";
-import { getUser } from "../../backend/firebase/getUser";
+import { getUser } from "../../backend/firebase/services/getUser";
 
 export const AuthContext = createContext(null);
 

@@ -1,4 +1,4 @@
-import { auth } from "./firebaseConfig.js";
+import { auth } from "../firebaseConfig.js";
 import { sendPasswordResetEmail } from "firebase/auth";
 export async function resetPassword(email) {
   //small check:

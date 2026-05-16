@@ -8,7 +8,7 @@ import {
   validarInputs,
 } from "../components";
 import colors from "../assets/colors";
-import { getUser } from "../backend/firebase/getUser";
+import { getUser } from "../backend/firebase/services/getUser";
 import { useAuth } from "../navigation/contexts/AuthContext";
 
 function getLoginErrorMessage(error) {

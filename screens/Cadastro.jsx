@@ -10,8 +10,8 @@ import {
 } from "../components";
 import colors from "../assets/colors";
 import { validarConfirmacaoSenha } from "../utils/validation";
-import { registerUser } from "../backend/firebase/registerUser";
-import { getUser } from "../backend/firebase/getUser";
+import { registerUser } from "../backend/firebase/services/registerUser";
+import { getUser } from "../backend/firebase/services/getUser";
 import { useAuth } from "../navigation/contexts/AuthContext";
 
 const cadastroErrorMessages = {
