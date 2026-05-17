@@ -51,20 +51,20 @@ export function converterParaObjeto(valor) {
 }
 
 //===imports para ler arquivo local===
-import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+// import { readFile } from "node:fs/promises";
+// import { fileURLToPath } from "node:url";
 //===================================
 
 //Usada para upload de imagens ao Storage!
 export async function uriToBlob(uri) {
   // uso correto:
-  // const response = await fetch(uri);
-  // const blob = await response.blob();
-  // return blob;
+  const response = await fetch(uri);
+  const blob = await response.blob();
+  return blob;
 
-  const path = fileURLToPath(uri);
-  const buffer = await readFile(path);
-  return new Blob([buffer], { type: "image/png" });
+  // const path = fileURLToPath(uri);
+  // const buffer = await readFile(path);
+  // return new Blob([buffer], { type: "image/png" });
 }
 
 // import * as ImagePicker from "expo-image-picker";

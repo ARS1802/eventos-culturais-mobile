@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   Login,
+  LoginScreen,
   Cadastro,
   EventoTesteScreen,
   FeedVisitanteScreen,
@@ -19,7 +20,7 @@ export default function AppNavigator() {
         initialRouteName="EventoTeste"
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="EventoTeste" component={EventoTesteScreen} />
+        <Stack.Screen name="EventoTeste" component={LoginScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />

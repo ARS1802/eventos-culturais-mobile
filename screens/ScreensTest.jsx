@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
-import { TouchableOpacity, Text } from "react-native";
+import { TouchableOpacity, Text, View, Image } from "react-native";
 import { useAuth } from "../navigation/contexts/AuthContext";
 import { converterParaObjeto, formatarValor } from "../utils/converters";
-
+import { ImagePickerButton } from "../components";
 import {
   Bottom,
   DatePicker,
@@ -14,10 +14,12 @@ import {
   Evento,
   validarInputs,
 } from "../components";
+import colors from "../assets/colors";
 
 export const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [selectedImg, setSelectedImg] = useState(null);
 
   const emailInputRef = useRef(null);
   const senhaInputRef = useRef(null);
@@ -47,8 +49,28 @@ export const LoginScreen = () => {
   return (
     <MainContainer
       top={<Header title="Espaços Culturais" />}
-      bottom={<Bottom tipo="visitante" onFiltro={() => alert("filtro!")} />}
+      bottom={
+        <Bottom>
+          <ImagePickerButton onPick={setSelectedImg} />
+        </Bottom>
+      }
     >
+      {selectedImg ? (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ color: colors.blue, marginBottom: 8 }}>
+            Imagem selecionada:
+          </Text>
+          <Image
+            source={{ uri: selectedImg.uri }}
+            style={{ width: 120, height: 120, borderRadius: 12 }}
+          />
+        </View>
+      ) : (
+        <Text style={{ color: colors.error, marginBottom: 16 }}>
+          Nenhuma imagem selecionada ainda.
+        </Text>
+      )}
+
       <Input
         ref={emailInputRef}
         label="Email"
