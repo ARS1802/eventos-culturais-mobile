@@ -49,3 +49,50 @@ export function converterParaObjeto(valor) {
 
   return { valor };
 }
+
+//===imports para ler arquivo local===
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+//===================================
+
+//Usada para upload de imagens ao Storage!
+export async function uriToBlob(uri) {
+  // uso correto:
+  // const response = await fetch(uri);
+  // const blob = await response.blob();
+  // return blob;
+
+  const path = fileURLToPath(uri);
+  const buffer = await readFile(path);
+  return new Blob([buffer], { type: "image/png" });
+}
+
+// import * as ImagePicker from "expo-image-picker";
+export async function pickImage() {
+  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+  if (!permission.granted) {
+    throw new Error("Permissão para acessar a galeria foi negada.");
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 0.8,
+  });
+
+  if (result.canceled) {
+    return null;
+  }
+
+  const asset = result.assets[0];
+
+  const mimeType = asset.mimeType || "image/jpeg";
+
+  if (!mimeType.startsWith("image/")) {
+    throw new Error("O arquivo selecionado não é uma imagem.");
+  }
+
+  return asset;
+}

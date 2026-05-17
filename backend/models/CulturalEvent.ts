@@ -31,7 +31,7 @@ export interface EventPoster {
   path: string;
   width: number;
   height: number;
-  contentType: string;
+  mimeType: string;
   updatedAt: Date;
 }
 
