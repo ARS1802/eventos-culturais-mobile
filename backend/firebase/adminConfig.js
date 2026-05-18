@@ -9,12 +9,12 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   );
 }
 
-const app = getApps().length
-  ? getApps()[0]
-  : initializeApp({
-      credential: applicationDefault(),
-    });
+// const app = getApps().length
+//   ? getApps()[0]
+//   : initializeApp({
+//       credential: applicationDefault(),
+//     });
 
-export const adminDb = getFirestore(app);
-export const adminStorage = getStorage(app);
+// export const adminDb = getFirestore(app);
+// export const adminStorage = getStorage(app);
 //export const adminAuth = getAuth(app);

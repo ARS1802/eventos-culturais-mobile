@@ -18,7 +18,11 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
+<<<<<<< HEAD
         initialRouteName="CadastroEvento"
+=======
+        initialRouteName="Login"
+>>>>>>> 3b8ff1c4f2799701002aa5fe5e060d31611c1fe9
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="EventoTeste" component={LoginScreen} />

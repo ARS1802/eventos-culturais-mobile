@@ -1,7 +1,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig.js";
-import type { UserRole, UserProfile } from "../../models/UserProfile.js";
+import type { UserRole, UserProfile } from "../../models/UserProfile";
 /**
  * Essa função é assíncrona!
  * Portanto, use ela com a keyword await para evitar que o Node fique         esperando por comandos ao invés de continuar!
