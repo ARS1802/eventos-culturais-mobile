@@ -57,14 +57,37 @@ export function converterParaObjeto(valor) {
 
 //Usada para upload de imagens ao Storage!
 export async function uriToBlob(uri) {
-  // uso correto:
+  // uso em ambiente web/HTTP
   const response = await fetch(uri);
   const blob = await response.blob();
   return blob;
+}
 
-  // const path = fileURLToPath(uri);
-  // const buffer = await readFile(path);
-  // return new Blob([buffer], { type: "image/png" });
+/**
+ * Suporta `file://` em Node.js. Faz import dinâmico dos módulos Node
+ * para não quebrar o bundle do Expo/Web.
+ * Uso: em ambientes Node onde `fetch` não entende `file://`.
+ */
+export async function uriToBlobNode(uri) {
+  if (!uri) throw new Error("URI é obrigatório");
+
+  if (uri.startsWith("file://")) {
+    const { readFile } = await import("node:fs/promises");
+    const { fileURLToPath } = await import("node:url");
+    const path = fileURLToPath(uri);
+    const buffer = await readFile(path);
+
+    try {
+      return new Blob([buffer]);
+    } catch (err) {
+      const { Blob: NodeBlob } = await import("buffer");
+      return new NodeBlob([buffer]);
+    }
+  }
+
+  // fallback para HTTP/HTTPS
+  const response = await fetch(uri);
+  return await response.blob();
 }
 
 // import * as ImagePicker from "expo-image-picker";

@@ -7,6 +7,7 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { tamanhoArquivoValido } from "../utils/validation";
 import colors from "../assets/colors";
 
 export function ImagePickerButton({
@@ -49,6 +50,14 @@ export function ImagePickerButton({
       let asset = null;
       if (result.assets && result.assets.length) asset = result.assets[0];
       else if (result.uri) asset = { uri: result.uri };
+
+      if (asset?.fileSize != null) {
+        if (!tamanhoArquivoValido(asset.fileSize, 150)) {
+          alert("A imagem não pode ser maior que 150MB.");
+          setLoading(false);
+          return;
+        }
+      }
 
       if (onPick && asset) onPick(asset);
     } catch (e) {

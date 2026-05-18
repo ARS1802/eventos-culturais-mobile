@@ -78,3 +78,10 @@ export function validarNome(nome) {
 
   return "";
 }
+export function tamanhoArquivoValido(bytes, maxMegabytes = 150) {
+  if (typeof bytes !== "number") {
+    return false;
+  }
+
+  return bytes <= maxMegabytes * 1024 * 1024;
+}

@@ -1,40 +1,55 @@
-import * as fs from "fs/promises";
-import { Blob } from "buffer"; // No Node.js moderno (v18+), o Blob é global, mas pode ser importado se necessário.
-import { adminStorage } from "./adminConfig.js";
-import { ref, uploadBytes } from "firebase/storage";
+import { getUser } from "./services/getUser.js";
+import { registerEvent } from "./services/registerEvent.js";
+import { registerUser } from "./services/registerUser.js";
 /**
- * Converte um caminho de arquivo local do Node.js em um Blob.
- * * @param path - O caminho do arquivo no sistema (ex: '/user/documents/image.png').
- * @param mimeType - O tipo do arquivo (ex: 'image/png'). Opcional, mas recomendado.
- * @returns Uma Promise que resolve em um Blob.
+ * Exemplos de uso dos serviços do backend
+ * - Substitua `exampleAsset` pelo `asset` retornado pelo Expo ImagePicker
  */
-const bucket = adminStorage.bucket(
-  "gs://sacadacultural-1987b.firebasestorage.app",
-);
-const file = bucket.file("120x120-II.png");
-async function pathToBlob(path: string, mimeType?: string): Promise<Blob> {
+
+async function main() {
+  // useAuth is a React hook and can't be called in this Node script.
+  // Remove its usage when running outside React.
   try {
-    // Lê o arquivo como um Buffer
-    const buffer = await fs.readFile(path);
-    await file.save(buffer, {
-      metadata: { contentType: "image/png" },
+    console.log("--- Exemplo: registrar usuário ---");
+    const uid = await registerUser({
+      name: "Teste",
+      email: "emailteste3@gmail.com",
+      password: "Teste333",
+      role: "organizer",
     });
-    // Converte o Buffer para Blob
-    const blob = new Blob([buffer], { type: mimeType });
-    return blob;
-  } catch (error) {
-    console.error("Erro ao ler o arquivo e converter para Blob:", error);
-    throw error;
+
+    console.log("UID do usuário:", uid);
+
+    console.log("--- Exemplo: registrar evento (com poster) ---");
+
+    // Exemplo de `asset` com URI local (file://) — ajuste conforme seu arquivo local
+    // Este é o asset que o ImagePickerButton normalmente passa: { uri, mimeType, width, height, fileSize }
+    const exampleAsset = {
+      uri: "file:///home/arthur/Downloads/Imagens/CinemaBrasileiro.png",
+      mimeType: "image/png",
+      width: 1200,
+      height: 1800,
+      fileSize: 123456,
+    };
+
+    // Registrar evento SEM enviar asset (opção segura para execução em Node)
+    const eventId = await registerEvent(
+      {
+        organizerId: typeof uid === "string" ? uid : "",
+        title: "CINEMA BRASILEIRO!",
+        description: "Deus e o diabo na terra do sol",
+        themes: ["cinema", "cultura_local"],
+        startAt: new Date("2026-08-01T19:00:00Z"),
+        endAt: new Date("2026-08-01T22:00:00Z"),
+        status: "ongoing",
+      },
+      exampleAsset,
+    );
+
+    console.log("Evento criado (ID):", eventId);
+  } catch (e) {
+    console.error("Erro nos exemplos:", e);
   }
 }
 
-// --- Exemplo de Uso ---
-const blobA = await pathToBlob(
-  "/media/arthur/Novo volume/ARTHUR/Unifor/2026/Dev Mobile/OcorrenciasEspacosCulturais/Issues/120x120-II.png",
-  "image/png",
-);
-// const blobB = await pathToBlob(
-//   "file:///home/arthur/Imagens/120x120-II.png",
-//   "image/png",
-// );
-console.log(blobA);
+main();

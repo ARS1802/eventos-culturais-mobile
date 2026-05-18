@@ -55,6 +55,13 @@ export const LoginScreen = () => {
         </Bottom>
       }
     >
+      <Image
+        source={
+          "https://firebasestorage.googleapis.com/v0/b/sacadacultural-1987b.firebasestorage.app/o/teste.png?alt=media&token=13d299bd-54bc-4a61-807b-69550ffbf8dd"
+        }
+        style={{ width: 120, height: 120, borderRadius: 12 }}
+      />
+
       {selectedImg ? (
         <View style={{ marginBottom: 16 }}>
           <Text style={{ color: colors.blue, marginBottom: 8 }}>
@@ -200,6 +207,21 @@ export const FeedVisitanteScreen = () => {
   const { usuario, firebaseUser, logout, loading } = useAuth();
   return (
     <MainContainer top={<Header title="Feed Visitante" />}>
+      {selectedImg ? (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ color: colors.secondary, marginBottom: 8 }}>
+            Imagem selecionada:
+          </Text>
+          <Image
+            source={{ uri: selectedImg.uri }}
+            style={{ width: 120, height: 120, borderRadius: 12 }}
+          />
+        </View>
+      ) : (
+        <Text style={{ color: colors.error, marginBottom: 16 }}>
+          Nenhuma imagem selecionada ainda.
+        </Text>
+      )}
       <TelaTemp nome={usuario} />
       <Text>
         {"\n"}FEED - VISITANTE - SCREEN{"\n"}
@@ -224,13 +246,17 @@ export const FeedVisitanteScreen = () => {
 };
 export const FeedOrganizadorScreen = () => {
   const { usuario, firebaseUser, logout, loading } = useAuth();
+  const [selectedImg, setSelectedImg] = useState(null);
   return (
-    <MainContainer top={<Header title="Feed Organizador" />}>
+    <MainContainer
+      top={<Header title="Feed Organizador" />}
+      bottom={
+        <Bottom>
+          <ImagePickerButton onPick={setSelectedImg} />
+        </Bottom>
+      }
+    >
       <TelaTemp nome={usuario} />;
-      <Text>
-        {"\n"}FEED - ORGANIZADOR - SCREEN{"\n"}
-      </Text>
-      <TelaTemp nome={firebaseUser} />
       <Evento
         Titulo="Evento publicado"
         Data={new Date()}
