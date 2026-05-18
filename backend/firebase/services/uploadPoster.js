@@ -2,6 +2,7 @@ import { storage } from "../firebaseConfig.js";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db } from "../firebaseConfig.js";
 import { collection, doc } from "firebase/firestore";
+import { safeTitle } from "../../utils/formatters.js";
 
 async function fileUriToBlobNode(uri, mimeType) {
   const { readFile } = await import("node:fs/promises");
@@ -23,9 +24,7 @@ export async function uploadPoster(asset, evento) {
   const mimeType = asset.mimeType || "image/jpeg";
   const isFileUri = asset.uri && String(asset.uri).startsWith("file://");
   const isNodeRuntime =
-    typeof process !== "undefined" &&
-    process.versions &&
-    process.versions.node;
+    typeof process !== "undefined" && process.versions && process.versions.node;
   let blob;
 
   if (isNodeRuntime) {
@@ -36,7 +35,7 @@ export async function uploadPoster(asset, evento) {
       blob = await response.blob();
     }
   } else {
-    const relPath = "../../../" + "utils/converters.js";
+    const relPath = "../../" + "utils/converters.js";
     const mod = await import(relPath);
     const uriToBlob = mod.uriToBlob;
     blob = await uriToBlob(asset.uri);
@@ -45,8 +44,8 @@ export async function uploadPoster(asset, evento) {
   const extension = mimeType.split("/")[1] || "jpg";
 
   const novaImagemRef = doc(collection(db, "posters"));
-
-  const fileName = `${evento.id}_${novaImagemRef.id}.${extension}`;
+  const eventTitle = safeTitle(evento.title);
+  const fileName = `title=${eventTitle}_eventId=${evento.id}_id=${novaImagemRef.id}.${extension}`;
 
   const imageRef = ref(storage, `/${fileName}`);
 

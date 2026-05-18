@@ -13,9 +13,9 @@ async function main(): Promise<void> {
   try {
     console.log("--- Exemplo: registrar usuário ---");
     const usuarioTeste = {
-      name: "Teste6",
-      email: "emailteste6@gmail.com",
-      password: "Teste666",
+      name: "Teste9",
+      email: "emailteste9@gmail.com",
+      password: "Teste999",
       role: "organizer",
     } as const;
 
@@ -54,19 +54,19 @@ async function main(): Promise<void> {
     console.log("--- Exemplo: registrar evento (com poster) ---");
 
     const exampleAsset = {
-      uri: "file:///home/arthur/Downloads/Imagens/CinemaBrasileiro5.png",
+      uri: "file:///home/arthur/Downloads/Imagens/Estatua7.png",
       mimeType: "image/png",
       width: 1200,
       height: 1800,
-      fileSize: 123456,
+      fileSize: 900,
     };
 
     const eventId = await registerEvent(
       {
         organizerId: uid,
-        title: "5 - CINEMA BRASILEIRO",
-        description: "Cidade de deus!",
-        themes: ["cinema", "cultura_local"],
+        title: "7 - ESTATUA",
+        description: "cool estatua grega!",
+        themes: ["exposicao", "cultura_local"],
         startAt: new Date("2026-08-01T19:00:00Z"),
         endAt: new Date("2026-08-01T22:00:00Z"),
         status: "ongoing",

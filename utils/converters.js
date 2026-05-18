@@ -55,14 +55,6 @@ export function converterParaObjeto(valor) {
 // import { fileURLToPath } from "node:url";
 //===================================
 
-//Usada para upload de imagens ao Storage!
-export async function uriToBlob(uri) {
-  // uso em ambiente web/HTTP
-  const response = await fetch(uri);
-  const blob = await response.blob();
-  return blob;
-}
-
 /**
  * Suporta `file://` em Node.js. Faz import dinâmico dos módulos Node
  * para não quebrar o bundle do Expo/Web.
