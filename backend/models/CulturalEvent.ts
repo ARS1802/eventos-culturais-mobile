@@ -29,7 +29,12 @@ export type EventStatus = "ongoing" | "ended";
 export interface EventPoster {
   url: string;
   path: string;
+  width: number;
+  height: number;
+  mimeType: string;
+  updatedAt: Date;
 }
+
 export interface ReviewStats {
   count: number;
   ratingSum: number;

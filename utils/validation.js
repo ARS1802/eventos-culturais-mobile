@@ -1,5 +1,3 @@
-
-
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.com$/;
 
 /*
@@ -11,12 +9,9 @@ const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.com$/;
   - pelo menos 1 número
 */
 
-const REGEX_SENHA_FORTE =
-  /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-
+const REGEX_SENHA_FORTE = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
 export function validarEmail(email) {
-
   if (!email?.trim()) {
     return "Email é obrigatório";
   }
@@ -40,40 +35,15 @@ export function validarEmail(email) {
   return "";
 }
 
-
 export function validarSenha(senha) {
-
   if (!senha) {
     return "Senha é obrigatória";
-  }
-
-  if (!REGEX_SENHA_FORTE.test(senha)) {
-
-    if (senha.length < 8) {
-      return "Senha deve ter no mínimo 8 caracteres";
-    }
-
-    if (!/[A-Z]/.test(senha)) {
-      return "Senha deve ter pelo menos 1 letra maiúscula";
-    }
-
-    if (!/\d/.test(senha)) {
-      return "Senha deve ter pelo menos 1 número";
-    }
-
-    return "Senha inválida";
   }
 
   return "";
 }
 
-
-
-export function validarConfirmacaoSenha(
-  senha,
-  confirmarSenha
-) {
-
+export function validarConfirmacaoSenha(senha, confirmarSenha) {
   if (!confirmarSenha) {
     return "Confirme sua senha";
   }
@@ -86,13 +56,39 @@ export function validarConfirmacaoSenha(
 }
 
 export function validarNome(nome) {
-
   if (!nome?.trim()) {
     return "Nome é obrigatório";
   }
 
-  if (nome.trim().length < 3) {
-    return "Nome deve ter pelo menos 3 caracteres";
+  if (nome.trim().length <= 3) {
+    return "Nome deve ter mais de 3 caracteres";
+  }
+
+  if (nome.trim().length >= 64) {
+    return "Nome deve ter menos de 64 caracteres";
+  }
+
+  if (/\d/.test(nome)) {
+    return "Nome não pode conter números";
+  }
+
+  if (/[^\p{L}\s]/u.test(nome)) {
+    return "Nome não pode conter caracteres especiais";
+  }
+
+  return "";
+}
+export function validarTextoLivre(texto) {
+  if (!texto?.trim()) {
+    return "Campo é obrigatório";
+  }
+
+  if (texto.trim().length <= 3) {
+    return "Campo deve ter mais de 3 caracteres";
+  }
+
+  if (texto.trim().length >= 255) {
+    return "Campo deve ter menos de 255 caracteres";
   }
 
   return "";

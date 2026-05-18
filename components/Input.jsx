@@ -16,12 +16,14 @@ import {
   validarEmail,
   validarSenha,
   validarNome,
+  validarTextoLivre,
 } from "../utils/validation.js";
 
 const validators = {
   email: validarEmail,
   senha: validarSenha,
   nome: validarNome,
+  textoLivre: validarTextoLivre,
 };
 
 

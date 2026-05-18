@@ -1,8 +1,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { setDoc } from "firebase/firestore";
-import { auth } from "./firebaseConfig.js";
-import { userDoc } from "../models/firestoreReferences.js";
-import { UserRole, UserProfile } from "../models/UserProfile.js";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig.js";
+import type { UserRole, UserProfile } from "../../models/UserProfile.js";
 /**
  * Essa função é assíncrona!
  * Portanto, use ela com a keyword await para evitar que o Node fique         esperando por comandos ao invés de continuar!
@@ -32,7 +31,13 @@ export async function registerUser(params: {
     };
 
     try {
-      await setDoc(userDoc(uid), newUser);
+      await setDoc(doc(db, "users", uid), {
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
+      });
     } catch (e) {
       console.log("ERRO no Firestore!\n" + e);
       return "FIRESTORE_ERROR";
