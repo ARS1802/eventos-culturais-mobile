@@ -6,7 +6,7 @@ import type {
   EventPoster,
   EventStatus,
   EventTheme,
-} from "../../models/CulturalEvent.js";
+} from "../../models/CulturalEvent";
 
 /**
  * Registra um evento no Firestore criando um novo documento em `events/{id}`.

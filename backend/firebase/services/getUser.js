@@ -1,12 +1,6 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebaseConfig.js";
+import { userDoc } from "../../models/firestoreReferences";
 
 function formatUserProfile(snapshot) {
   const data = snapshot.data();
@@ -30,8 +24,8 @@ function formatUserProfile(snapshot) {
 export async function getUser({ id, email } = {}) {
   try {
     if (id) {
-      // Busca direta pelo UID
-      const docRef = doc(db, "users", id);
+      // Busca direta pelo UID usando a referência tipada do código-fonte.
+      const docRef = userDoc(id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {

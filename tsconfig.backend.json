@@ -1,21 +1,19 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": false,
-    "customConditions": [],
     "declaration": false,
     "esModuleInterop": true,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "noEmit": false,
     "noEmitOnError": true,
-    "outDir": "dist/backend",
+    "outDir": "backend/tests/dist",
     "rootDir": "backend",
     "skipLibCheck": true,
     "target": "ES2022",
     "types": ["node"]
   },
   "include": ["backend/**/*.js", "backend/**/*.ts"],
-  "exclude": ["dist", "node_modules", "utils", "utils/**"]
+  "exclude": ["dist", "node_modules", "backend/tests/dist", "utils", "utils/**"]
 }
