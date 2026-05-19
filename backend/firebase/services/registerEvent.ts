@@ -59,8 +59,11 @@ export async function registerEvent(
     let poster: EventPoster | null = null;
 
     if (asset) {
-      // uploadPoster espera (asset, evento { id, title })
-      const uploadResult = await uploadPoster(asset, { id: eventId, title });
+      // uploadPoster espera (asset, evento { id, organizerId })
+      const uploadResult = await uploadPoster(asset, {
+        id: eventId,
+        organizerId: params.organizerId,
+      });
 
       poster = {
         url: uploadResult.url,

@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "backend:test:build": "tsc -p tsconfig.backend.json",
-    "backend:test": "npm run backend:test:build && node backend/tests/dist/tests/testes.js",
+    "backend:test": "npm run backend:test:build && TEST_MODE=true node backend/tests/dist/tests/testes.js",
     "back:test": "npm run backend:test",
     "test": "npm run backend:test:build && npm run web",
     "print": "echo testelegal!"

@@ -57,7 +57,7 @@ export interface ReviewStats {
 
         poster: {
             url: "https://...",
-            path: "event-posters/uid/eventId.png"
+            path: "event-posters/uid_do_organizador/eventId/poster.png"
         },
 
         status: "published",
