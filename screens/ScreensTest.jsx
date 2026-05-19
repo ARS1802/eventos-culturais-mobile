@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TouchableOpacity, Text, View, Image } from "react-native";
 import { useAuth } from "../navigation/contexts/AuthContext";
 import { converterParaObjeto, formatarValor } from "../utils/converters";
@@ -15,6 +15,8 @@ import {
   validarInputs,
 } from "../components";
 import colors from "../assets/colors";
+import { getUser } from "../backend/firebase/services/getUser";
+import { getEvent } from "../backend/firebase/services/getEvent";
 
 export const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -64,8 +66,8 @@ export const LoginScreen = () => {
 
       {selectedImg ? (
         <View style={{ marginBottom: 16 }}>
-          <Text style={{ color: colors.blue, marginBottom: 8 }}>
-            Imagem selecionada:
+          <Text style={{ color: colors.primary, marginBottom: 8 }}>
+            {JSON.stringify(selectedImg, null, 2)}
           </Text>
           <Image
             source={{ uri: selectedImg.uri }}
@@ -174,15 +176,74 @@ export const CadastroScreen = () => {
 };
 
 export const EventoTesteScreen = () => {
+  const [organizer, setOrganizer] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function carregarEventos() {
+      try {
+        setLoadingEvents(true);
+        setEventsError("");
+
+        const organizerData = await getUser({
+          email: "emailteste2@gmail.com",
+        });
+
+        if (!organizerData) {
+          throw new Error("Organizador não encontrado.");
+        }
+
+        const organizerEvents = await getEvent({
+          organizerId: organizerData.id,
+        });
+
+        if (isMounted) {
+          setOrganizer(organizerData);
+          setEvents(Array.isArray(organizerEvents) ? organizerEvents : []);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar eventos de teste:", error);
+
+        if (isMounted) {
+          setEventsError("Não foi possível carregar os eventos.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingEvents(false);
+        }
+      }
+    }
+
+    carregarEventos();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <MainContainer top={<Header title="Teste Evento" />}>
-      <Evento
-        Titulo="Mostra de Cinema"
-        Data="2026-05-15"
-        NomeOrganizador="Casa da Cultura"
-        Estrelas={4}
-        ImgURL=""
-      />
+      {loadingEvents && <Text>Carregando eventos...</Text>}
+
+      {eventsError ? <Text>{eventsError}</Text> : null}
+
+      {!loadingEvents &&
+        !eventsError &&
+        events.map((event) => (
+          <Evento
+            key={event.id}
+            Titulo={event.title}
+            Data={event.startAt}
+            NomeOrganizador={organizer?.name}
+            Estrelas={event.reviewStats?.ratingAverage ?? 0}
+            ImgURL={event.poster?.url ?? ""}
+          />
+        ))}
+
       <Evento
         Titulo="Sarau Cultural"
         Data="20/05/2026"
@@ -207,21 +268,6 @@ export const FeedVisitanteScreen = () => {
   const { usuario, firebaseUser, logout, loading } = useAuth();
   return (
     <MainContainer top={<Header title="Feed Visitante" />}>
-      {selectedImg ? (
-        <View style={{ marginBottom: 16 }}>
-          <Text style={{ color: colors.secondary, marginBottom: 8 }}>
-            Imagem selecionada:
-          </Text>
-          <Image
-            source={{ uri: selectedImg.uri }}
-            style={{ width: 120, height: 120, borderRadius: 12 }}
-          />
-        </View>
-      ) : (
-        <Text style={{ color: colors.error, marginBottom: 16 }}>
-          Nenhuma imagem selecionada ainda.
-        </Text>
-      )}
       <TelaTemp nome={usuario} />
       <Text>
         {"\n"}FEED - VISITANTE - SCREEN{"\n"}
@@ -250,11 +296,7 @@ export const FeedOrganizadorScreen = () => {
   return (
     <MainContainer
       top={<Header title="Feed Organizador" />}
-      bottom={
-        <Bottom>
-          <ImagePickerButton onPick={setSelectedImg} />
-        </Bottom>
-      }
+      bottom={<Bottom />}
     >
       <TelaTemp nome={usuario} />;
       <Evento

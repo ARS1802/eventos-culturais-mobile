@@ -18,10 +18,10 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="EventoTeste"
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="EventoTeste" component={LoginScreen} />
+        <Stack.Screen name="EventoTeste" component={EventoTesteScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />

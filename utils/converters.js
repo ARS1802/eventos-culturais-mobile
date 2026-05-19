@@ -1,3 +1,5 @@
+import * as ImagePicker from "expo-image-picker";
+
 function criarReplacerCircular() {
   const objetosVisitados = new WeakSet();
 
@@ -50,39 +52,22 @@ export function converterParaObjeto(valor) {
   return { valor };
 }
 
-//===imports para ler arquivo local===
-// import { readFile } from "node:fs/promises";
-// import { fileURLToPath } from "node:url";
-//===================================
-
 /**
- * Suporta `file://` em Node.js. Faz import dinâmico dos módulos Node
- * para não quebrar o bundle do Expo/Web.
- * Uso: em ambientes Node onde `fetch` não entende `file://`.
+ * Converte uma URI local ou remota em Blob no runtime do Expo/React Native.
+ * Evita módulos `node:*`, que não existem no app Android/iOS.
  */
-export async function uriToBlobNode(uri) {
+export async function uriToBlob(uri) {
   if (!uri) throw new Error("URI é obrigatório");
 
-  if (uri.startsWith("file://")) {
-    const { readFile } = await import("node:fs/promises");
-    const { fileURLToPath } = await import("node:url");
-    const path = fileURLToPath(uri);
-    const buffer = await readFile(path);
+  const response = await fetch(uri);
 
-    try {
-      return new Blob([buffer]);
-    } catch (err) {
-      const { Blob: NodeBlob } = await import("buffer");
-      return new NodeBlob([buffer]);
-    }
+  if (!response.ok && response.status >= 400) {
+    throw new Error(`Não foi possível ler a imagem: ${response.status}`);
   }
 
-  // fallback para HTTP/HTTPS
-  const response = await fetch(uri);
   return await response.blob();
 }
 
-// import * as ImagePicker from "expo-image-picker";
 export async function pickImage() {
   const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 

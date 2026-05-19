@@ -1,6 +1,7 @@
 import { deleteApp } from "firebase/app";
 
 import { app } from "../firebase/firebaseConfig";
+import { getEvento } from "../firebase/services/getEvent";
 import { getUser } from "../firebase/services/getUser";
 import { registerEvent } from "../firebase/services/registerEvent";
 import { registerUser } from "../firebase/services/registerUser";
@@ -13,9 +14,9 @@ async function main(): Promise<void> {
   try {
     console.log("--- Exemplo: registrar usuário ---");
     const usuarioTeste = {
-      name: "Teste9",
-      email: "emailteste9@gmail.com",
-      password: "Teste999",
+      name: "TesteDois",
+      email: "emailteste2@gmail.com",
+      password: "Teste222",
       role: "organizer",
     } as const;
 
@@ -54,7 +55,7 @@ async function main(): Promise<void> {
     console.log("--- Exemplo: registrar evento (com poster) ---");
 
     const exampleAsset = {
-      uri: "file:///home/arthur/Downloads/Imagens/Estatua7.png",
+      uri: "file:///home/arthur/Downloads/Imagens/EstatuaUm.png",
       mimeType: "image/png",
       width: 1200,
       height: 1800,
@@ -75,6 +76,14 @@ async function main(): Promise<void> {
     );
 
     console.log("Evento criado (ID):", eventId);
+
+    console.log("--- Exemplo: buscar evento pelo ID ---");
+    const eventoEncontrado = await getEvento({ eventoId: eventId });
+    console.log("Evento encontrado:", eventoEncontrado);
+
+    console.log("--- Exemplo: buscar eventos pelo organizador ---");
+    const eventosDoOrganizador = await getEvento({ organizerId: uid });
+    console.log("Eventos do organizador:", eventosDoOrganizador);
   } catch (e) {
     console.error("Erro nos exemplos:", e);
   }
