@@ -56,6 +56,7 @@ function lerParametro(props, nome, fallback = "") {
 export function Evento(props) {
   const Titulo = lerParametro(props, "Titulo", props.title);
   const Data = lerParametro(props, "Data", props.date);
+  const Endereco = lerParametro(props, "Endereco", props.address);
   const NomeOrganizador = lerParametro(
     props,
     "NomeOrganizador",
@@ -68,6 +69,7 @@ export function Evento(props) {
 
   const estrelas = limitarEstrelas(Estrelas);
   const temComentario = Boolean(String(Comentario).trim());
+  const temEndereco = Boolean(String(Endereco).trim());
 
   return (
     <View style={styles.container}>
@@ -89,6 +91,11 @@ export function Evento(props) {
             {Titulo || "Titulo"}
           </Text>
           <Text style={styles.data}>{formatarData(Data)}</Text>
+          {temEndereco && (
+            <Text numberOfLines={1} style={styles.endereco}>
+              {Endereco}
+            </Text>
+          )}
           <Text numberOfLines={1} style={styles.organizador}>
             {NomeOrganizador || "nome do organizador"}
           </Text>
@@ -163,6 +170,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 12,
     fontWeight: "800",
+  },
+  endereco: {
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 2,
   },
   organizador: {
     color: "#1F1F1F",

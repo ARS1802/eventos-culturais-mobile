@@ -238,7 +238,8 @@ export const EventoTesteScreen = () => {
             key={event.id}
             Titulo={event.title}
             Data={event.startAt}
-            NomeOrganizador={organizer?.name}
+            Endereco={event.address}
+            NomeOrganizador={event.organizerName || organizer?.name}
             Estrelas={event.reviewStats?.ratingAverage ?? 0}
             ImgURL={event.poster?.url ?? ""}
           />

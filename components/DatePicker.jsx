@@ -9,38 +9,73 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import COLORS from "../assets/colors";
 
-export function DatePicker() {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+export function DatePicker({
+  label = "Datas",
+  mode = "date",
+  startDate: controlledStartDate,
+  endDate: controlledEndDate,
+  onChangeStartDate,
+  onChangeEndDate,
+}) {
+  const [internalStartDate, setInternalStartDate] = useState(null);
+  const [internalEndDate, setInternalEndDate] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState("start");
+
+  const startDate =
+    controlledStartDate === undefined ? internalStartDate : controlledStartDate;
+  const endDate =
+    controlledEndDate === undefined ? internalEndDate : controlledEndDate;
 
   const handlePress = (mode) => {
     setPickerMode(mode);
     setShowPicker(true);
   };
 
+  const formatValue = (date, fallback) => {
+    if (!date) {
+      return fallback;
+    }
+
+    if (mode === "time") {
+      return date.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    return date.toLocaleDateString("pt-BR");
+  };
+
   const onChange = (event, selectedDate) => {
     setShowPicker(false);
     if (selectedDate) {
       if (pickerMode === "start") {
-        setStartDate(selectedDate);
+        if (onChangeStartDate) {
+          onChangeStartDate(selectedDate);
+        } else {
+          setInternalStartDate(selectedDate);
+        }
       } else {
-        setEndDate(selectedDate);
+        if (onChangeEndDate) {
+          onChangeEndDate(selectedDate);
+        } else {
+          setInternalEndDate(selectedDate);
+        }
       }
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Datas</Text>
+      <Text style={styles.label}>{label}</Text>
       <View style={styles.row}>
         <TouchableOpacity
           style={styles.input}
           onPress={() => handlePress("start")}
         >
           <Text style={styles.inputText}>
-            {startDate ? startDate.toLocaleDateString() : "Início..."}
+            {formatValue(startDate, "Início...")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -48,7 +83,7 @@ export function DatePicker() {
           onPress={() => handlePress("end")}
         >
           <Text style={styles.inputText}>
-            {endDate ? endDate.toLocaleDateString() : "Fim..."}
+            {formatValue(endDate, "Fim...")}
           </Text>
         </TouchableOpacity>
       </View>
@@ -59,10 +94,10 @@ export function DatePicker() {
               ? startDate || new Date()
               : endDate || new Date()
           }
-          mode="date"
+          mode={mode}
           display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={onChange}
-          minimumDate={new Date()}
+          {...(mode === "date" ? { minimumDate: new Date() } : {})}
         />
       )}
     </View>

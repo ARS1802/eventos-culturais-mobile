@@ -1,8 +1,9 @@
 import React, { useRef, useState } from "react";
-import { Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import {
   Bottom,
   Header,
+  ImagePickerButton,
   Input,
   MainContainer,
   DatePicker,
@@ -10,6 +11,8 @@ import {
   validarInputs,
 } from "../components";
 import colors from "../assets/colors";
+import { registerEvent } from "../backend/firebase/services/registerEvent";
+import { useAuth } from "../navigation/contexts/AuthContext";
 
 function ButtonBottom({ color, title, onPress, disabled }) {
   return (
@@ -28,33 +31,83 @@ export function CadastroEvento({ navigation }) {
   const [descricao, setDescricao] = useState("");
   const [endereco, setEndereco] = useState("");
   const [tema, setTema] = useState("");
+  const [dataInicio, setDataInicio] = useState(null);
+  const [dataFim, setDataFim] = useState(null);
+  const [horaInicio, setHoraInicio] = useState(null);
+  const [horaFim, setHoraFim] = useState(null);
+  const [cartaz, setCartaz] = useState(null);
   const [erro, setErro] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { usuario, firebaseUser } = useAuth();
 
   const tituloRef = useRef(null);
   const descricaoRef = useRef(null);
   const enderecoRef = useRef(null);
 
   const temas = [
-    { label: "Infantil", value: "infantil" },
-    { label: "Tragédia", value: "tragedia" },
-    { label: "Comédia", value: "comedia" },
-    { label: "Musical", value: "musical" },
-    { label: "Arte Visual", value: "arte_visual" },
+    { label: "Música", value: "musica" },
+    { label: "Teatro", value: "teatro" },
+    { label: "Cinema", value: "cinema" },
+    { label: "Dança", value: "danca" },
+    { label: "Literatura", value: "literatura" },
+    { label: "Cultura local", value: "cultura_local" },
+    { label: "Exposição", value: "exposicao" },
+    { label: "Outros", value: "outros" },
   ];
+
+  function combinarDataHora(data, hora) {
+    if (!data) {
+      return null;
+    }
+
+    const dataCompleta = new Date(data);
+
+    if (hora) {
+      dataCompleta.setHours(hora.getHours(), hora.getMinutes(), 0, 0);
+    }
+
+    return dataCompleta;
+  }
 
   async function concluir() {
     const erroInputs = validarInputs([tituloRef, descricaoRef, enderecoRef]);
     if (erroInputs) { setErro(erroInputs); return; }
     if (!tema) { setErro("Selecione um tema."); return; }
+    if (!dataInicio) { setErro("Selecione a data de início."); return; }
+    if (usuario?.role !== "organizer") { setErro("Apenas organizadores podem cadastrar eventos."); return; }
+
+    const organizerId = usuario?.id ?? firebaseUser?.uid;
+
+    if (!organizerId) { setErro("Organizador não encontrado."); return; }
 
     setErro("");
     setSubmitting(true);
     try {
-      // integração Firebase vai aqui
+      const eventStartAt = combinarDataHora(dataInicio, horaInicio);
+      const eventEndAt = dataFim ? combinarDataHora(dataFim, horaFim) : null;
+      const result = await registerEvent(
+        {
+          organizerId,
+          title: titulo,
+          description: descricao,
+          address: endereco,
+          themes: [tema],
+          startAt: eventStartAt,
+          endAt: eventEndAt,
+          status: "ongoing",
+        },
+        cartaz,
+      );
+
+      if (result === "FIRESTORE_ERROR") {
+        setErro("Não foi possível salvar o evento.");
+        return;
+      }
+
       alert("Evento cadastrado com sucesso!");
       navigation.goBack();
     } catch (error) {
+      console.error("Erro ao cadastrar evento:", error);
       setErro("Informações inválidas");
     } finally {
       setSubmitting(false);
@@ -100,8 +153,21 @@ export function CadastroEvento({ navigation }) {
         validationType="textoLivre"
       />
 
-      <DatePicker label="Datas" />
-      <DatePicker label="Horários" />
+      <DatePicker
+        label="Datas"
+        startDate={dataInicio}
+        endDate={dataFim}
+        onChangeStartDate={setDataInicio}
+        onChangeEndDate={setDataFim}
+      />
+      <DatePicker
+        label="Horários"
+        mode="time"
+        startDate={horaInicio}
+        endDate={horaFim}
+        onChangeStartDate={setHoraInicio}
+        onChangeEndDate={setHoraFim}
+      />
 
       <SingleChoicePicker
         selected={tema}
@@ -109,9 +175,12 @@ export function CadastroEvento({ navigation }) {
         options={temas}
       />
 
-      <TouchableOpacity style={styles.uploadButton}>
-        <Text style={styles.uploadText}>Upload cartaz 📷</Text>
-      </TouchableOpacity>
+      <ImagePickerButton
+        cor={colors.primary}
+        texto={cartaz ? "Cartaz selecionado" : "Upload cartaz"}
+        onPick={setCartaz}
+        style={styles.uploadButton}
+      />
 
       {erro !== "" && (
         <Text style={styles.erro}>{erro}</Text>
@@ -137,15 +206,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   uploadButton: {
-    backgroundColor: colors.accent,
-    padding: 12,
-    borderRadius: 10,
-    alignItems: "center",
     marginTop: 16,
-  },
-  uploadText: {
-    color: colors.primary,
-    fontWeight: "bold",
   },
   erro: {
     color: colors.error,

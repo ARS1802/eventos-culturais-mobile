@@ -7,6 +7,8 @@ function formatCulturalEvent(snapshot) {
   return {
     id: snapshot.id,
     ...data,
+    organizerName: data.organizerName ?? "",
+    address: data.address ?? "",
     startAt: data.startAt?.toDate?.() ?? data.startAt,
     endAt: data.endAt?.toDate?.() ?? data.endAt ?? null,
     poster: data.poster

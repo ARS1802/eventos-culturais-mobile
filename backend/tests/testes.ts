@@ -165,6 +165,7 @@ async function main(): Promise<void> {
           title: "Museu Brasileiro",
           description:
             "Exposicao guiada sobre memoria, arte popular e patrimonio cultural brasileiro.",
+          address: "Rua das Artes, 123 - Centro",
           themes: ["cultura_local"],
           startAt: new Date("2026-08-15T18:00:00-03:00"),
           endAt: new Date("2026-08-15T21:00:00-03:00"),
@@ -175,6 +176,14 @@ async function main(): Promise<void> {
 
       const id = assertEventSuccess(result);
       const event = await getEvento({ eventoId: id });
+
+      if (event?.address !== "Rua das Artes, 123 - Centro") {
+        throw new Error("Endereço do evento não foi salvo corretamente.");
+      }
+
+      if (event?.organizerName !== "Curadoria Museu Brasileiro") {
+        throw new Error("Nome do organizador não foi salvo corretamente.");
+      }
 
       console.log("Evento criado com sucesso:");
       console.log(event);

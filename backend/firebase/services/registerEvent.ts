@@ -1,6 +1,7 @@
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig.js";
 import { uploadPoster } from "./uploadPoster.js";
+import { userDoc } from "../../models/firestoreReferences";
 import type {
   CulturalEvent,
   EventPoster,
@@ -18,6 +19,7 @@ export async function registerEvent(
     organizerId: string;
     title: string;
     description: string;
+    address: string;
     themes: EventTheme[];
     startAt: Date;
     endAt?: Date | null;
@@ -25,10 +27,12 @@ export async function registerEvent(
   },
   asset?: any,
 ): Promise<string> {
+  const organizerId = params.organizerId?.trim();
   const title = params.title?.trim();
   const description = params.description?.trim();
+  const address = params.address?.trim();
 
-  if (!params.organizerId?.trim()) {
+  if (!organizerId) {
     throw new Error("organizerId é obrigatório");
   }
 
@@ -38,6 +42,10 @@ export async function registerEvent(
 
   if (!description) {
     throw new Error("Descrição do evento é obrigatória");
+  }
+
+  if (!address) {
+    throw new Error("Endereço do evento é obrigatório");
   }
 
   if (!Array.isArray(params.themes) || params.themes.length === 0) {
@@ -52,6 +60,24 @@ export async function registerEvent(
   }
 
   try {
+    const organizerSnap = await getDoc(userDoc(organizerId));
+
+    if (!organizerSnap.exists()) {
+      throw new Error("Organizador não encontrado");
+    }
+
+    const organizer = organizerSnap.data();
+
+    if (organizer.role !== "organizer") {
+      throw new Error("Apenas usuários organizadores podem criar eventos");
+    }
+
+    const organizerName = organizer.name?.trim();
+
+    if (!organizerName) {
+      throw new Error("Nome do organizador não encontrado");
+    }
+
     const eventsColl = collection(db, "events");
     const eventRef = doc(eventsColl); // novo doc com id automático
     const eventId = eventRef.id;
@@ -62,7 +88,7 @@ export async function registerEvent(
       // uploadPoster espera (asset, evento { id, organizerId })
       const uploadResult = await uploadPoster(asset, {
         id: eventId,
-        organizerId: params.organizerId,
+        organizerId,
       });
 
       poster = {
@@ -78,9 +104,11 @@ export async function registerEvent(
 
     const now = new Date();
     const eventData: Omit<CulturalEvent, "id"> = {
-      organizerId: params.organizerId,
+      organizerId,
+      organizerName,
       title,
       description,
+      address,
       themes: params.themes,
       startAt: params.startAt,
       endAt: params.endAt ?? null,

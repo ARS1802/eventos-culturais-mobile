@@ -47,9 +47,11 @@ export interface ReviewStats {
         {
         id: "eventId",
         organizerId: "uid_do_organizador",
+        organizerName: "Casa da Cultura",
 
         title: "Mostra de Cinema Cearense",
         description: "Evento cultural com exibição de filmes locais.",
+        address: "Rua das Artes, 123",
         themes: ["cinema", "cultura_local"],
 
         startAt: Timestamp,
@@ -76,9 +78,11 @@ export interface ReviewStats {
 export interface CulturalEvent {
   id: string;
   organizerId: string;
+  organizerName: string;
 
   title: string;
   description: string;
+  address: string;
   themes: EventTheme[];
 
   startAt: Date;
@@ -98,8 +102,10 @@ export const culturalEventConverter: FirestoreDataConverter<CulturalEvent> = {
   toFirestore(event: CulturalEvent) {
     return {
       organizerId: event.organizerId,
+      organizerName: event.organizerName,
       title: event.title,
       description: event.description,
+      address: event.address,
       themes: event.themes,
       startAt: event.startAt,
       endAt: event.endAt ?? null,
@@ -117,8 +123,10 @@ export const culturalEventConverter: FirestoreDataConverter<CulturalEvent> = {
     return {
       id: snapshot.id,
       organizerId: data.organizerId,
+      organizerName: data.organizerName ?? "",
       title: data.title,
       description: data.description,
+      address: data.address ?? "",
       themes: data.themes ?? [],
       startAt: data.startAt?.toDate?.() ?? new Date(),
       endAt: data.endAt?.toDate?.() ?? null,
