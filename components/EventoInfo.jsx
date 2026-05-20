@@ -13,6 +13,10 @@ import colors from "../assets/colors";
 import { Header } from "./Header";
 import { MainContainer } from "./MainContainer";
 
+/**
+ * @typedef {import("../backend/models/CulturalEvent").CulturalEvent} CulturalEvent
+ */
+
 function limitarEstrelas(valor) {
   const numero = Number(valor);
 
@@ -81,7 +85,15 @@ function Estrelas({ valor, tamanho = 24, selecionavel = false, onSelect }) {
   );
 }
 
+/**
+ * Tela detalhada de evento.
+ *
+ * @param {Object} props
+ * @param {{ params?: { evento?: CulturalEvent, podeAvaliar?: boolean, avaliacoes?: Array } }} [props.route]
+ * @param {{ goBack?: () => void }} [props.navigation]
+ */
 export function EventoInfo({ route, navigation }) {
+  /** @type {CulturalEvent | null} */
   const evento = useMemo(() => route?.params?.evento ?? null, [route]);
   const podeAvaliar = Boolean(route?.params?.podeAvaliar);
   const avaliacoes = Array.isArray(route?.params?.avaliacoes)
@@ -102,6 +114,16 @@ export function EventoInfo({ route, navigation }) {
     return null;
   }
 
+  const {
+    title,
+    organizerName,
+    description,
+    address,
+    startAt,
+    poster,
+    reviewStats,
+  } = evento;
+
   return (
     <KeyboardAvoidingView
       style={styles.keyboardAvoiding}
@@ -110,7 +132,7 @@ export function EventoInfo({ route, navigation }) {
       <MainContainer
         top={
           <View style={styles.topContainer}>
-            <Header title={evento.title} />
+            <Header title={title} />
             <TouchableOpacity
               onPress={() => navigation?.goBack?.()}
               style={styles.voltarButton}
@@ -133,9 +155,9 @@ export function EventoInfo({ route, navigation }) {
         }
       >
         <View style={styles.card}>
-          {evento.poster?.url ? (
+          {poster?.url ? (
             <Image
-              source={{ uri: evento.poster.url }}
+              source={{ uri: poster.url }}
               style={styles.imagem}
               resizeMode="cover"
             />
@@ -145,7 +167,7 @@ export function EventoInfo({ route, navigation }) {
             </View>
           )}
 
-          <Text style={styles.organizador}>by {evento.organizerName}</Text>
+          <Text style={styles.organizador}>by {organizerName}</Text>
 
           {categorias.length > 0 && (
             <View style={styles.categorias}>
@@ -157,14 +179,14 @@ export function EventoInfo({ route, navigation }) {
             </View>
           )}
 
-          <Text style={styles.sinopse}>{evento.description}</Text>
+          <Text style={styles.sinopse}>{description}</Text>
 
           <View style={styles.infoBloco}>
             <Text style={styles.infoTitulo}>Datas:</Text>
-            <Text style={styles.infoTexto}>{formatarData(evento.startAt)}</Text>
+            <Text style={styles.infoTexto}>{formatarData(startAt)}</Text>
 
             <Text style={styles.infoTitulo}>Endereco:</Text>
-            <Text style={styles.infoTexto}>{evento.address}</Text>
+            <Text style={styles.infoTexto}>{address}</Text>
           </View>
 
           <View style={styles.avaliacoesHeader}>
@@ -173,7 +195,7 @@ export function EventoInfo({ route, navigation }) {
 
           <View style={styles.avaliacoesBox}>
             <Estrelas
-              valor={evento.reviewStats?.ratingAverage ?? 0}
+              valor={reviewStats?.ratingAverage ?? 0}
               tamanho={18}
             />
             {avaliacoes.length > 0 ? (

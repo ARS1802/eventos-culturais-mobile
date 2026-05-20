@@ -3,6 +3,10 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import colors from "../assets/colors";
 
+/**
+ * @typedef {import("../backend/models/CulturalEvent").CulturalEvent} CulturalEvent
+ */
+
 function limitarEstrelas(valor) {
   const numero = Number(valor);
 
@@ -50,6 +54,15 @@ function formatarData(valor) {
   }).format(data);
 }
 
+/**
+ * Card resumido de evento.
+ *
+ * @param {Object} props
+ * @param {CulturalEvent} props.evento Evento seguindo a interface CulturalEvent.
+ * @param {boolean} [props.podeAvaliar]
+ * @param {Array} [props.avaliacoes]
+ * @param {(evento: CulturalEvent) => void} [props.onPress]
+ */
 export function Evento({
   evento,
   podeAvaliar = false,
@@ -62,8 +75,16 @@ export function Evento({
     return null;
   }
 
-  const posterUrl = evento.poster?.url ?? "";
-  const estrelas = limitarEstrelas(evento.reviewStats?.ratingAverage ?? 0);
+  const {
+    title,
+    organizerName,
+    address,
+    startAt,
+    poster,
+    reviewStats,
+  } = evento;
+  const posterUrl = poster?.url ?? "";
+  const estrelas = limitarEstrelas(reviewStats?.ratingAverage ?? 0);
 
   function abrirDetalhes() {
     if (onPress) {
@@ -99,16 +120,16 @@ export function Evento({
 
         <View style={styles.textContainer}>
           <Text numberOfLines={1} style={styles.titulo}>
-            {evento.title || "Titulo"}
+            {title || "Titulo"}
           </Text>
-          <Text style={styles.data}>{formatarData(evento.startAt)}</Text>
-          {evento.address ? (
+          <Text style={styles.data}>{formatarData(startAt)}</Text>
+          {address ? (
             <Text numberOfLines={1} style={styles.endereco}>
-              {evento.address}
+              {address}
             </Text>
           ) : null}
           <Text numberOfLines={1} style={styles.organizador}>
-            {evento.organizerName || "nome do organizador"}
+            {organizerName || "nome do organizador"}
           </Text>
           <Text style={styles.estrelas}>
             {"\u2605".repeat(estrelas)}

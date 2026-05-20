@@ -19,6 +19,51 @@ import colors from "../assets/colors";
 import { getUser } from "../backend/firebase/services/getUser";
 import { getEvent } from "../backend/firebase/services/getEvent";
 
+const eventosTesteFallback = [
+  {
+    id: "teste-evento-1",
+    organizerId: "organizer-teste",
+    organizerName: "Casa da Cultura",
+    title: "Mostra de Cinema",
+    description:
+      "Evento cultural com exibicao de filmes locais e conversa com artistas.",
+    themes: ["cinema", "cultura_local"],
+    address: "Museu Central, sala X",
+    startAt: new Date(2026, 4, 15),
+    endAt: null,
+    poster: null,
+    status: "ongoing",
+    reviewStats: {
+      count: 1,
+      ratingSum: 4,
+      ratingAverage: 4,
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "teste-evento-2",
+    organizerId: "organizer-teste",
+    organizerName: "Coletivo Arte Viva",
+    title: "Sarau Cultural",
+    description:
+      "Noite de poesia, musica e performances abertas para artistas locais.",
+    themes: ["musica", "literatura"],
+    address: "Praca das Artes",
+    startAt: new Date(2026, 4, 20),
+    endAt: null,
+    poster: null,
+    status: "ongoing",
+    reviewStats: {
+      count: 1,
+      ratingSum: 3,
+      ratingAverage: 3,
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
 export const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -204,13 +249,18 @@ export const EventoTesteScreen = () => {
 
         if (isMounted) {
           setOrganizer(organizerData);
-          setEvents(Array.isArray(organizerEvents) ? organizerEvents : []);
+          setEvents(
+            Array.isArray(organizerEvents) && organizerEvents.length > 0
+              ? organizerEvents
+              : eventosTesteFallback,
+          );
         }
       } catch (error) {
         console.error("Erro ao carregar eventos de teste:", error);
 
         if (isMounted) {
-          setEventsError("Não foi possível carregar os eventos.");
+          setEvents(eventosTesteFallback);
+          setEventsError("");
         }
       } finally {
         if (isMounted) {
