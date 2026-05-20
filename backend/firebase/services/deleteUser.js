@@ -29,6 +29,7 @@ function requiresRecentLogin(user) {
  * segura o `auth.currentUser`. Remover outra conta por UID exige Admin SDK em
  * um ambiente confiável, como Cloud Functions ou um backend Node.
  */
+
 export async function deleteUser(userId) {
   const validUserId = userId?.trim?.();
 

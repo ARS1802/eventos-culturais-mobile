@@ -6,10 +6,13 @@ import { terminate } from "firebase/firestore";
 
 import { app, auth, db } from "../firebase/firebaseConfig";
 import { deleteEvent } from "../firebase/services/deleteEvent";
+import { deleteReview } from "../firebase/services/deleteReview";
 import { deleteUser } from "../firebase/services/deleteUser";
 import { getEvento } from "../firebase/services/getEvent";
+import { getReview } from "../firebase/services/getReview";
 import { getUser } from "../firebase/services/getUser";
 import { registerEvent } from "../firebase/services/registerEvent";
+import { registerReview } from "../firebase/services/registerReview";
 import { registerUser } from "../firebase/services/registerUser";
 
 process.env.TEST_MODE ??= "true";
@@ -34,10 +37,7 @@ function pause(message = "Pressione Enter para continuar..."): Promise<void> {
   });
 }
 
-async function runStep<T>(
-  title: string,
-  action: () => Promise<T>,
-): Promise<T> {
+async function runStep<T>(title: string, action: () => Promise<T>): Promise<T> {
   console.log(`\n=== ${title} ===`);
 
   try {
@@ -59,6 +59,14 @@ function assertRegisterUserSuccess(result: string): string {
 function assertEventSuccess(result: string): string {
   if (result === "FIRESTORE_ERROR") {
     throw new Error("Falha ao criar evento: FIRESTORE_ERROR");
+  }
+
+  return result;
+}
+
+function assertReviewSuccess(result: string): string {
+  if (result === "FIRESTORE_ERROR") {
+    throw new Error("Falha ao criar avaliação: FIRESTORE_ERROR");
   }
 
   return result;
@@ -104,6 +112,7 @@ async function main(): Promise<void> {
   let visitorId = "";
   let organizerId = "";
   let eventId = "";
+  let reviewId = "";
 
   try {
     visitorId = await runStep("1. Criar Usuário Visitante", async () => {
@@ -144,7 +153,7 @@ async function main(): Promise<void> {
 
     eventId = await runStep("3. Criar Evento", async () => {
       const asset = {
-        uri: "file:///home/arthur/Downloads/Imagens/Museu.png",
+        uri: "file:///home/arthur/Downloads/Imagens/EstatuaBrasileiraPoster.png",
         mimeType: "image/png",
         width: 1200,
         height: 1800,
@@ -174,7 +183,34 @@ async function main(): Promise<void> {
     });
     await pause();
 
-    await runStep("4. Deletar Visitante", async () => {
+    reviewId = await runStep("4. Criar Avaliação do Visitante", async () => {
+      await signInWithEmailAndPassword(
+        auth,
+        visitorCredentials.email,
+        visitorCredentials.password,
+      );
+
+      const result = await registerReview({
+        eventId,
+        visitorId,
+        organizerId,
+        rating: 5,
+        comment:
+          "Experiencia excelente, com exposicao bem organizada e mediação acolhedora.",
+        visitorName: "Visitante Teste",
+      });
+
+      const id = assertReviewSuccess(result);
+      const review = await getReview(id);
+
+      console.log("Avaliação criada com sucesso:");
+      console.log(review);
+
+      return id;
+    });
+    await pause();
+
+    await runStep("5. Deletar Visitante", async () => {
       await signInWithEmailAndPassword(
         auth,
         visitorCredentials.email,
@@ -188,21 +224,25 @@ async function main(): Promise<void> {
     });
     await pause();
 
-    await runStep("5. Deletar Evento", async () => {
+    await runStep("6. Deletar Avaliação e Evento", async () => {
       await signInWithEmailAndPassword(
         auth,
         organizerCredentials.email,
         organizerCredentials.password,
       );
 
+      const reviewResult = await deleteReview(reviewId);
+      assertResult(reviewResult, "REVIEW_DELETED");
+
       const result = await deleteEvent(eventId);
       assertResult(result, "EVENT_DELETED");
 
+      console.log("Resultado da delecao da avaliação:", reviewResult);
       console.log("Resultado da delecao do evento:", result);
     });
     await pause();
 
-    await runStep("6. Deletar Organizador", async () => {
+    await runStep("7. Deletar Organizador", async () => {
       if (auth.currentUser?.uid !== organizerId) {
         await signInWithEmailAndPassword(
           auth,
