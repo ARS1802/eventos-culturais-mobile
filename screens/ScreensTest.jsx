@@ -7,6 +7,7 @@ import {
   Bottom,
   DatePicker,
   Header,
+  Icons,
   Input,
   MainContainer,
   SingleChoicePicker,
@@ -236,31 +237,13 @@ export const EventoTesteScreen = () => {
         events.map((event) => (
           <Evento
             key={event.id}
-            Titulo={event.title}
-            Data={event.startAt}
-            Endereco={event.address}
-            NomeOrganizador={event.organizerName || organizer?.name}
-            Estrelas={event.reviewStats?.ratingAverage ?? 0}
-            ImgURL={event.poster?.url ?? ""}
+            evento={{
+              ...event,
+              organizerName: event.organizerName ?? organizer?.name ?? "",
+            }}
+            podeAvaliar
           />
         ))}
-
-      <Evento
-        Titulo="Sarau Cultural"
-        Data="20/05/2026"
-        NomeOrganizador="Coletivo Arte Viva"
-        Estrelas={3}
-        Comentario="Nao gostei! Fui mal atendido. Nao recomendo."
-        ImgURL=""
-      />
-      <Evento
-        Titulo="Festival de Musica Independente"
-        Data={new Date()}
-        NomeOrganizador="Palco Aberto"
-        Estrelas={5}
-        Comentario=""
-        ImgURL="https://picsum.photos/300/300"
-      />
     </MainContainer>
   );
 };
@@ -268,25 +251,67 @@ export const EventoTesteScreen = () => {
 export const FeedVisitanteScreen = () => {
   const { usuario, firebaseUser, logout, loading } = useAuth();
   return (
-    <MainContainer top={<Header title="Feed Visitante" />}>
+    <MainContainer
+      top={<Header title="Feed Visitante" />}
+      bottom={
+        <Icons
+          tipo="visitante"
+          onAvaliar={() => alert("avaliar evento")}
+          onFiltro={() => alert("filtrar eventos")}
+        />
+      }
+    >
       <TelaTemp nome={usuario} />
       <Text>
         {"\n"}FEED - VISITANTE - SCREEN{"\n"}
       </Text>
       <Evento
-        Titulo="Mostra de Cinema"
-        Data="2026-05-15"
-        NomeOrganizador="Casa da Cultura"
-        Estrelas={4}
-        ImgURL=""
+        podeAvaliar
+        evento={{
+          id: "teste-visitante-1",
+          organizerId: "organizer-teste",
+          organizerName: "Casa da Cultura",
+          title: "Mostra de Cinema",
+          description:
+            "Johannes Vermeer foi um pintor holandes do seculo XVII, famoso por cenas domesticas luminosas e detalhadas.",
+          themes: ["cinema", "cultura_local"],
+          address: "Museu Central, sala X",
+          startAt: new Date(2026, 4, 15),
+          endAt: null,
+          poster: null,
+          status: "ongoing",
+          reviewStats: {
+            count: 1,
+            ratingSum: 4,
+            ratingAverage: 4,
+          },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }}
       />
       <Evento
-        Titulo="Sarau Cultural"
-        Data="2026-05-20"
-        NomeOrganizador="Coletivo Arte Viva"
-        Estrelas={3}
-        Comentario="Nao gostei! Fui mal atendido. Nao recomendo."
-        ImgURL=""
+        podeAvaliar
+        evento={{
+          id: "teste-visitante-2",
+          organizerId: "organizer-teste",
+          organizerName: "Coletivo Arte Viva",
+          title: "Sarau Cultural",
+          description:
+            "Noite de poesia, musica e performances abertas para artistas locais.",
+          themes: ["musica", "literatura"],
+          address: "Praca das Artes",
+          startAt: new Date(2026, 4, 20),
+          endAt: null,
+          poster: null,
+          status: "ongoing",
+          reviewStats: {
+            count: 1,
+            ratingSum: 3,
+            ratingAverage: 3,
+          },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }}
       />
     </MainContainer>
   );
@@ -297,16 +322,37 @@ export const FeedOrganizadorScreen = () => {
   return (
     <MainContainer
       top={<Header title="Feed Organizador" />}
-      bottom={<Bottom />}
+      bottom={
+        <Icons
+          tipo="organizador"
+          onCriar={() => alert("criar evento")}
+          onFiltro={() => alert("filtrar eventos")}
+        />
+      }
     >
       <TelaTemp nome={usuario} />;
       <Evento
-        Titulo="Evento publicado"
-        Data={new Date()}
-        NomeOrganizador={usuario?.name}
-        Estrelas={5}
-        Comentario="Este card esta usando dados estaticos para testar o componente."
-        ImgURL=""
+        evento={{
+          id: "teste-organizador-1",
+          organizerId: usuario?.id ?? "organizer-teste",
+          organizerName: usuario?.name ?? "Organizador",
+          title: "Evento publicado",
+          description:
+            "Visualizacao de teste para o organizador acompanhar o card publicado.",
+          themes: ["outros"],
+          address: "Centro Cultural",
+          startAt: new Date(),
+          endAt: null,
+          poster: null,
+          status: "ongoing",
+          reviewStats: {
+            count: 1,
+            ratingSum: 5,
+            ratingAverage: 5,
+          },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }}
       />
     </MainContainer>
   );

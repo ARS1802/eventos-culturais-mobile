@@ -1,5 +1,6 @@
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import colors from "../assets/colors";
 
 function limitarEstrelas(valor) {
@@ -49,35 +50,45 @@ function formatarData(valor) {
   }).format(data);
 }
 
-function lerParametro(props, nome, fallback = "") {
-  return props[nome] ?? fallback;
-}
+export function Evento({
+  evento,
+  podeAvaliar = false,
+  avaliacoes = [],
+  onPress,
+}) {
+  const navigation = useNavigation();
 
-export function Evento(props) {
-  const Titulo = lerParametro(props, "Titulo", props.title);
-  const Data = lerParametro(props, "Data", props.date);
-  const Endereco = lerParametro(props, "Endereco", props.address);
-  const NomeOrganizador = lerParametro(
-    props,
-    "NomeOrganizador",
-    props.organizerName,
-  );
-  const Estrelas = lerParametro(props, "Estrelas", props.rating);
-  const Comentario =
-    props["Comentario"] ?? props["Coment\u00e1rio"] ?? props.comment ?? "";
-  const ImgURL = lerParametro(props, "ImgURL", props.imageUrl);
+  if (!evento) {
+    return null;
+  }
 
-  const estrelas = limitarEstrelas(Estrelas);
-  const temComentario = Boolean(String(Comentario).trim());
-  const temEndereco = Boolean(String(Endereco).trim());
+  const posterUrl = evento.poster?.url ?? "";
+  const estrelas = limitarEstrelas(evento.reviewStats?.ratingAverage ?? 0);
+
+  function abrirDetalhes() {
+    if (onPress) {
+      onPress(evento);
+      return;
+    }
+
+    navigation.navigate("EventoInfo", {
+      evento,
+      avaliacoes,
+      podeAvaliar,
+    });
+  }
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      activeOpacity={0.82}
+      onPress={abrirDetalhes}
+      style={styles.container}
+    >
       <View style={styles.infoContainer}>
         <View style={styles.posterContainer}>
-          {ImgURL ? (
+          {posterUrl ? (
             <Image
-              source={{ uri: ImgURL }}
+              source={{ uri: posterUrl }}
               style={styles.poster}
               resizeMode="cover"
             />
@@ -88,16 +99,16 @@ export function Evento(props) {
 
         <View style={styles.textContainer}>
           <Text numberOfLines={1} style={styles.titulo}>
-            {Titulo || "Titulo"}
+            {evento.title || "Titulo"}
           </Text>
-          <Text style={styles.data}>{formatarData(Data)}</Text>
-          {temEndereco && (
+          <Text style={styles.data}>{formatarData(evento.startAt)}</Text>
+          {evento.address ? (
             <Text numberOfLines={1} style={styles.endereco}>
-              {Endereco}
+              {evento.address}
             </Text>
-          )}
+          ) : null}
           <Text numberOfLines={1} style={styles.organizador}>
-            {NomeOrganizador || "nome do organizador"}
+            {evento.organizerName || "nome do organizador"}
           </Text>
           <Text style={styles.estrelas}>
             {"\u2605".repeat(estrelas)}
@@ -105,13 +116,7 @@ export function Evento(props) {
           </Text>
         </View>
       </View>
-
-      {temComentario && (
-        <View style={styles.comentarioContainer}>
-          <Text style={styles.comentario}>{Comentario}</Text>
-        </View>
-      )}
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -188,17 +193,5 @@ const styles = StyleSheet.create({
     color: colors.accent,
     fontSize: 27,
     lineHeight: 30,
-  },
-  comentarioContainer: {
-    borderTopWidth: 1,
-    borderTopColor: "#EFE8DA",
-    paddingHorizontal: 18,
-    paddingVertical: 18,
-    backgroundColor: colors.white,
-  },
-  comentario: {
-    color: colors.text,
-    fontSize: 21,
-    lineHeight: 25,
   },
 });
