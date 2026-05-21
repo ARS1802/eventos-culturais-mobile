@@ -85,82 +85,75 @@ export function CadastroEvento({ navigation }) {
 
   async function concluir() {
     const erroInputs = validarInputs([tituloRef, descricaoRef, enderecoRef]);
+
     if (erroInputs) {
       setErro(erroInputs);
       return;
     }
+
     if (themes.length === 0) {
       setErro("Selecione ao menos um tema.");
       return;
     }
+
     if (!startAtDate) {
       setErro("Selecione a data de início.");
       return;
     }
+
     if (usuario?.role !== "organizer") {
       setErro("Apenas organizadores podem cadastrar eventos.");
       return;
     }
 
+    const organizerId = usuario?.id ?? firebaseUser?.uid;
+
+    if (!organizerId) {
+      setErro("Organizador não encontrado.");
+      return;
+    }
+
+    const startAt = combinarDataHora(startAtDate, startAtTime);
+    const endAt = endAtDate ? combinarDataHora(endAtDate, endAtTime) : null;
+
+    if (!startAt) {
+      setErro("Data de início inválida.");
+      return;
+    }
+
+    if (endAt && endAt < startAt) {
+      setErro("A data de fim não pode ser anterior à data de início.");
+      return;
+    }
+
     setErro("");
     setSubmitting(true);
+
     try {
-      const id = await registerEvent(
+      const result = await registerEvent(
         {
-          organizerId: usuario.id,
-          title: titulo,
-          description: descricao,
-          address: endereco,
-          themes: [tema],
-          startAt: new Date(),
-          endAt: null,
+          organizerId,
+          title,
+          description,
+          address,
+          themes,
+          startAt,
+          endAt,
           status: "ongoing",
         },
-        cartaz, // asset do ImagePicker
+        poster,
       );
 
-      if (!organizerId) {
-        setErro("Organizador não encontrado.");
+      if (result === "FIRESTORE_ERROR") {
+        setErro("Não foi possível salvar o evento.");
         return;
       }
 
-      setErro("");
-      setSubmitting(true);
-      try {
-        const startAt = combinarDataHora(startAtDate, startAtTime);
-        const endAt = endAtDate ? combinarDataHora(endAtDate, endAtTime) : null;
-        const result = await registerEvent(
-          {
-            organizerId,
-            title,
-            description,
-            address,
-            themes,
-            startAt,
-            endAt,
-            status: "ongoing",
-          },
-          poster,
-        );
-
-        if (result === "FIRESTORE_ERROR") {
-          setErro("Não foi possível salvar o evento.");
-          return;
-        }
-
-        alert("Evento cadastrado com sucesso!");
-        voltar();
-      } catch (error) {
-        console.error("Erro ao cadastrar evento:", error);
-        setErro("Informações inválidas");
-      } finally {
-        setSubmitting(false);
-      }
-
       alert("Evento cadastrado com sucesso!");
-      navigation.goBack();
+      voltar();
     } catch (error) {
-      setErro("Informações inválidas");
+      console.error("Erro ao cadastrar evento:", error);
+      setErro(error?.message ?? "Informações inválidas.");
     } finally {
       setSubmitting(false);
     }
@@ -240,8 +233,8 @@ export function CadastroEvento({ navigation }) {
       />
 
       <ImagePickerButton
-        cor={colors.primary}
-        texto={poster ? "Cartaz selecionado" : "Upload cartaz"}
+        cor={colors.blue}
+        texto={poster ? "Cartaz selecionado" : "Upload cartaz 📷"}
         onPick={setPoster}
         style={styles.uploadButton}
       />

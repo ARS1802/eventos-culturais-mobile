@@ -9,10 +9,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { getDocs, query, where } from "firebase/firestore";
 import colors from "../assets/colors";
 import { getEvent } from "../backend/firebase/services/getEvent";
-import { getReview } from "../backend/firebase/services/getReview";
 import { registerReview } from "../backend/firebase/services/registerReview";
+import { reviewsCollection } from "../backend/models/firestoreReferences";
 import { useAuth } from "../navigation/contexts/AuthContext";
 import { Header } from "./Header";
 import { MainContainer } from "./MainContainer";
@@ -220,36 +221,37 @@ export function EventoInfo({ route, navigation }) {
   useEffect(() => {
     let isMounted = true;
 
-    async function carregarAvaliacoesDoVisitante() {
-      if (!evento?.id || !usuario?.id) {
+    async function carregarAvaliacoesDoEvento() {
+      if (!eventoId) {
         return;
       }
 
       try {
-        const avaliacoesDoVisitante = await getReview(null, usuario.id);
+        const reviewsQuery = query(
+          reviewsCollection,
+          where("eventId", "==", eventoId),
+        );
+        const querySnapshot = await getDocs(reviewsQuery);
+        const avaliacoesDoEvento = querySnapshot.docs.map((docSnapshot) =>
+          docSnapshot.data(),
+        );
 
-        if (!isMounted || !Array.isArray(avaliacoesDoVisitante)) {
+        if (!isMounted) {
           return;
         }
 
-        const avaliacoesDoEvento = avaliacoesDoVisitante.filter(
-          (avaliacao) => avaliacao.eventId === evento.id,
-        );
-
-        setAvaliacoes((atuais) =>
-          mesclarAvaliacoes(atuais, avaliacoesDoEvento),
-        );
+        setAvaliacoes(avaliacoesDoEvento);
       } catch (error) {
-        console.error("Erro ao carregar avaliações do visitante:", error);
+        console.error("Erro ao carregar avaliações do evento:", error);
       }
     }
 
-    carregarAvaliacoesDoVisitante();
+    carregarAvaliacoesDoEvento();
 
     return () => {
       isMounted = false;
     };
-  }, [evento?.id, usuario?.id]);
+  }, [eventoId]);
 
   async function publicarAvaliacao() {
     if (!evento) {
@@ -304,7 +306,9 @@ export function EventoInfo({ route, navigation }) {
       const proximoCount = statsAtuais.count + 1;
       const proximoRatingSum = statsAtuais.ratingSum + nota;
 
-      setAvaliacoes((atuais) => mesclarAvaliacoes(atuais, [avaliacaoPublicada]));
+      setAvaliacoes((atuais) =>
+        mesclarAvaliacoes(atuais, [avaliacaoPublicada]),
+      );
       setEvento({
         ...evento,
         reviewStats: {
@@ -444,22 +448,22 @@ export function EventoInfo({ route, navigation }) {
           </View>
 
           <View style={styles.avaliacoesBox}>
-            <Estrelas
-              valor={reviewStats?.ratingAverage ?? 0}
-              tamanho={18}
-            />
+            <Estrelas valor={reviewStats?.ratingAverage ?? 0} tamanho={18} />
             {avaliacoes.length > 0 ? (
               avaliacoes.map((avaliacao, index) => (
                 <View
                   key={
-                    avaliacao.id ?? `${avaliacao.visitorId ?? "usuario"}-${index}`
+                    avaliacao.id ??
+                    `${avaliacao.visitorId ?? "usuario"}-${index}`
                   }
                 >
                   <Text style={styles.usuarioAvaliacao}>
                     {avaliacao.visitorName ?? avaliacao.usuario ?? "visitante"}
                   </Text>
                   <Text style={styles.textoAvaliacao}>
-                    {avaliacao.comment ?? avaliacao.comentario ?? avaliacao.texto}
+                    {avaliacao.comment ??
+                      avaliacao.comentario ??
+                      avaliacao.texto}
                   </Text>
                 </View>
               ))

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { converterParaObjeto, formatarValor } from "../utils/converters";
 import { ImagePickerButton } from "../components";
 import {
