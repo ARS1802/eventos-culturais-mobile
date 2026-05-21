@@ -13,6 +13,17 @@ import {
   DEFAULT_EVENTS_PAGE_SIZE,
   getEventsPage,
 } from "../backend/firebase/services/getEventsPage";
+import { normalizeThemeSelection } from "./eventThemes";
+
+function getDateKey(value) {
+  if (!value) {
+    return "";
+  }
+
+  const time = new Date(value).getTime();
+
+  return Number.isFinite(time) ? time : "";
+}
 
 export function getEventFeedErrorMessage(error) {
   const message = String(error?.message ?? "").toLowerCase();
@@ -32,10 +43,16 @@ export function useEventFeed({
   status = null,
   enabled = true,
   orderByField = "startAt",
+  themeFilters = [],
+  startDate = null,
+  endDate = null,
 } = {}) {
   const cursorRef = useRef(null);
   const isFetchingRef = useRef(false);
   const endReachedRef = useRef(false);
+  const themeFiltersKey = normalizeThemeSelection(themeFilters).join("|");
+  const startDateKey = getDateKey(startDate);
+  const endDateKey = getDateKey(endDate);
   const [events, setEvents] = useState([]);
   const [initialLoading, setInitialLoading] = useState(Boolean(enabled));
   const [loadingMore, setLoadingMore] = useState(false);
@@ -71,13 +88,20 @@ export function useEventFeed({
       }
 
       try {
-        const page = await getEventsPage({
+        const activeThemeFilters = themeFiltersKey
+          ? themeFiltersKey.split("|")
+          : [];
+        const pageParams = {
           pageSize: DEFAULT_EVENTS_PAGE_SIZE,
           lastDoc: reset ? null : cursorRef.current,
           status,
           organizerId,
           orderByField,
-        });
+          themeFilters: activeThemeFilters,
+          startDate: startDateKey ? new Date(startDateKey) : null,
+          endDate: endDateKey ? new Date(endDateKey) : null,
+        };
+        const page = await getEventsPage(pageParams);
 
         cursorRef.current = page.lastDoc;
         endReachedRef.current = !page.hasMore;
@@ -96,7 +120,15 @@ export function useEventFeed({
         setRefreshing(false);
       }
     },
-    [enabled, orderByField, organizerId, status],
+    [
+      enabled,
+      endDateKey,
+      orderByField,
+      organizerId,
+      startDateKey,
+      status,
+      themeFiltersKey,
+    ],
   );
 
   useEffect(() => {

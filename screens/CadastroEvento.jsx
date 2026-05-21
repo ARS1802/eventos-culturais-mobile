@@ -14,6 +14,7 @@ import {
 import colors from "../assets/colors";
 import { registerEvent } from "../backend/firebase/services/registerEvent";
 import { useAuth } from "../navigation/contexts/AuthContext";
+import { EVENT_THEME_OPTIONS } from "../utils/eventThemes";
 
 function ButtonBottom({ color, title, onPress, disabled }) {
   return (
@@ -48,17 +49,6 @@ export function CadastroEvento({ navigation }) {
   const tituloRef = useRef(null);
   const descricaoRef = useRef(null);
   const enderecoRef = useRef(null);
-
-  const temas = [
-    { label: "Música", value: "musica" },
-    { label: "Teatro", value: "teatro" },
-    { label: "Cinema", value: "cinema" },
-    { label: "Dança", value: "danca" },
-    { label: "Literatura", value: "literatura" },
-    { label: "Cultura local", value: "cultura_local" },
-    { label: "Exposição", value: "exposicao" },
-    { label: "Outros", value: "outros" },
-  ];
 
   function voltar() {
     if (navigation.canGoBack?.()) {
@@ -229,7 +219,7 @@ export function CadastroEvento({ navigation }) {
       <MultipleChoicePicker
         selected={themes}
         onChange={setThemes}
-        options={temas}
+        options={EVENT_THEME_OPTIONS}
       />
 
       <ImagePickerButton

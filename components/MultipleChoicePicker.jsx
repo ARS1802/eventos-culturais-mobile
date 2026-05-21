@@ -12,6 +12,8 @@ export function MultipleChoicePicker({
   options = [],
   selected = [],
   onChange = () => {},
+  compact = false,
+  checkboxPosition = "right",
 }) {
 
   function toggleOption(value) {
@@ -37,6 +39,7 @@ export function MultipleChoicePicker({
             activeOpacity={0.8}
             style={[
               styles.card,
+              compact && styles.cardCompact,
               isSelected && styles.cardSelected,
               item.disabled && styles.disabled
             ]}
@@ -46,14 +49,31 @@ export function MultipleChoicePicker({
               }
             }}
           >
+            {checkboxPosition === "left" && (
+              <View style={[styles.checkbox, compact && styles.checkboxCompact]}>
+                {isSelected && (
+                  <Text style={styles.check}>✓</Text>
+                )}
+              </View>
+            )}
+
             {/* ÍCONE */}
             {item.icon && (
-              <Text style={styles.icon}>{item.icon}</Text>
+              <Text style={[styles.icon, compact && styles.iconCompact]}>
+                {item.icon}
+              </Text>
             )}
 
             {/* TEXOS */}
-            <View style={styles.textContainer}>
-              <Text style={styles.title}>{item.label}</Text>
+            <View
+              style={[
+                styles.textContainer,
+                checkboxPosition === "left" && styles.textAfterCheckbox,
+              ]}
+            >
+              <Text style={[styles.title, compact && styles.titleCompact]}>
+                {item.label}
+              </Text>
 
               {item.description && (
                 <Text style={styles.description}>
@@ -63,11 +83,13 @@ export function MultipleChoicePicker({
             </View>
 
             {/* CHECKBOX */}
-            <View style={styles.checkbox}>
-              {isSelected && (
-                <Text style={styles.check}>✓</Text>
-              )}
-            </View>
+            {checkboxPosition !== "left" && (
+              <View style={[styles.checkbox, compact && styles.checkboxCompact]}>
+                {isSelected && (
+                  <Text style={styles.check}>✓</Text>
+                )}
+              </View>
+            )}
           </TouchableOpacity>
         );
       })}
@@ -88,6 +110,13 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
 
+  cardCompact: {
+    minHeight: 36,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+  },
+
   cardSelected: {
     backgroundColor: COLORS.primary,
   },
@@ -101,14 +130,26 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 
+  iconCompact: {
+    marginRight: 8,
+  },
+
   textContainer: {
     flex: 1,
+  },
+
+  textAfterCheckbox: {
+    marginLeft: 10,
   },
 
   title: {
     color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 14,
+  },
+
+  titleCompact: {
+    textAlign: 'right',
   },
 
   description: {
@@ -126,6 +167,12 @@ const styles = StyleSheet.create({
     borderColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  checkboxCompact: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
   },
 
   check: {

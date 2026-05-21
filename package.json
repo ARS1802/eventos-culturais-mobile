@@ -11,6 +11,7 @@
     "backend:test:build": "tsc -p tsconfig.backend.json",
     "backend:test": "npm run backend:test:build && TEST_MODE=true node backend/tests/dist/tests/testes.js",
     "back:test": "npm run backend:test",
+    "firestore:indexes:deploy": "npx --yes firebase-tools deploy --only firestore:indexes --project sacadacultural-1987b",
     "test": "npm run backend:test:build && npm run web",
     "print": "echo testelegal!"
   },

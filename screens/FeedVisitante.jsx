@@ -10,18 +10,36 @@ import {
   isCloseToBottom,
   useEventFeed,
 } from "../utils/feed";
+import { normalizeFeedFilters } from "../utils/eventFilters";
 
-export function FeedVisitante() {
+export function FeedVisitante({ navigation, route }) {
   const { firebaseUser, usuario, loading } = useAuth();
   const isAuthenticated = Boolean(firebaseUser);
   const isVisitor = usuario?.role === "visitor";
   const canLoadFeed = isAuthenticated && (!usuario || isVisitor);
-  const feed = useEventFeed({ enabled: canLoadFeed });
+  const filters = normalizeFeedFilters(route?.params?.filters);
+  const feed = useEventFeed({
+    enabled: canLoadFeed,
+    themeFilters: filters.themes,
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+  });
 
   function handleScroll(event) {
     if (isCloseToBottom(event.nativeEvent)) {
       feed.loadMore();
     }
+  }
+
+  function abrirFiltros() {
+    navigation.navigate("FiltrosFeed", {
+      originRoute: "FeedVisitante",
+      filters: {
+        themes: filters.themes,
+        startDate: route?.params?.filters?.startDate ?? null,
+        endDate: route?.params?.filters?.endDate ?? null,
+      },
+    });
   }
 
   function renderContent() {
@@ -66,7 +84,7 @@ export function FeedVisitante() {
         <Icons
           tipo="visitante"
           onAvaliar={() => alert("avaliar evento")}
-          onFiltro={() => alert("filtrar eventos")}
+          onFiltro={abrirFiltros}
         />
       }
     >

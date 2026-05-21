@@ -16,6 +16,7 @@ export function DatePicker({
   endDate: controlledEndDate,
   onChangeStartDate,
   onChangeEndDate,
+  minimumDate = new Date(),
 }) {
   const [internalStartDate, setInternalStartDate] = useState(null);
   const [internalEndDate, setInternalEndDate] = useState(null);
@@ -97,7 +98,7 @@ export function DatePicker({
           mode={mode}
           display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={onChange}
-          {...(mode === "date" ? { minimumDate: new Date() } : {})}
+          {...(mode === "date" && minimumDate ? { minimumDate } : {})}
         />
       )}
     </View>

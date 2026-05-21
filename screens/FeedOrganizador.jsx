@@ -10,18 +10,38 @@ import {
   isCloseToBottom,
   useEventFeed,
 } from "../utils/feed";
+import { normalizeFeedFilters } from "../utils/eventFilters";
 
-export function FeedOrganizador({ navigation }) {
+export function FeedOrganizador({ navigation, route }) {
   const { firebaseUser, usuario, loading } = useAuth();
   const isAuthenticated = Boolean(firebaseUser);
   const isOrganizer = usuario?.role === "organizer";
   const canLoadFeed = isAuthenticated && (!usuario || isOrganizer);
-  const feed = useEventFeed({ enabled: canLoadFeed });
+  const organizerId = usuario?.id ?? firebaseUser?.uid ?? null;
+  const filters = normalizeFeedFilters(route?.params?.filters);
+  const feed = useEventFeed({
+    enabled: canLoadFeed && Boolean(organizerId),
+    organizerId,
+    themeFilters: filters.themes,
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+  });
 
   function handleScroll(event) {
     if (isCloseToBottom(event.nativeEvent)) {
       feed.loadMore();
     }
+  }
+
+  function abrirFiltros() {
+    navigation.navigate("FiltrosFeed", {
+      originRoute: "FeedOrganizador",
+      filters: {
+        themes: filters.themes,
+        startDate: route?.params?.filters?.startDate ?? null,
+        endDate: route?.params?.filters?.endDate ?? null,
+      },
+    });
   }
 
   function renderContent() {
@@ -65,7 +85,7 @@ export function FeedOrganizador({ navigation }) {
         <Icons
           tipo="organizador"
           onCriar={() => navigation.navigate("CadastroEvento")}
-          onFiltro={() => alert("filtrar eventos")}
+          onFiltro={abrirFiltros}
         />
       }
     >
