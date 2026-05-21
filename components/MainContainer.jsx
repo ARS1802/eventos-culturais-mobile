@@ -1,7 +1,15 @@
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export function MainContainer({ top, bottom, children }) {
+export function MainContainer({
+  top,
+  bottom,
+  children,
+  onScroll,
+  refreshControl,
+  scrollEventThrottle = 16,
+  contentContainerStyle,
+}) {
   const insets = useSafeAreaInsets();
   return (
     <View style={styles.feed}>
@@ -18,7 +26,11 @@ export function MainContainer({ top, bottom, children }) {
             paddingBottom: insets.bottom,
           },
           styles.scrollContent,
+          contentContainerStyle,
         ]}
+        onScroll={onScroll}
+        refreshControl={refreshControl}
+        scrollEventThrottle={scrollEventThrottle}
         showsVerticalScrollIndicator={false}
       >
         {children}

@@ -1,5 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { TouchableOpacity, Text, View, Image } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useAuth } from "../navigation/contexts/AuthContext";
 import { converterParaObjeto, formatarValor } from "../utils/converters";
 import { ImagePickerButton } from "../components";
@@ -18,6 +26,10 @@ import {
 import colors from "../assets/colors";
 import { getUser } from "../backend/firebase/services/getUser";
 import { getEvent } from "../backend/firebase/services/getEvent";
+import {
+  DEFAULT_EVENTS_PAGE_SIZE,
+  getEventsPage,
+} from "../backend/firebase/services/getEventsPage";
 
 const eventosTesteFallback = [
   {
@@ -221,6 +233,205 @@ export const CadastroScreen = () => {
   return <TelaTemp nome={"Cadastro"} />;
 };
 
+function getEventFeedErrorMessage(error) {
+  const message = String(error?.message ?? "").toLowerCase();
+
+  if (
+    error?.code === "failed-precondition" &&
+    message.includes("requires an index")
+  ) {
+    return "O Firestore precisa de um índice para essa combinação de filtro e ordenação. Crie o índice indicado no console e tente novamente quando ele ficar pronto.";
+  }
+
+  return "Não foi possível carregar os eventos.";
+}
+
+function useEventFeed({
+  organizerId = null,
+  status = null,
+  enabled = true,
+} = {}) {
+  const cursorRef = useRef(null);
+  const isFetchingRef = useRef(false);
+  const endReachedRef = useRef(false);
+  const [events, setEvents] = useState([]);
+  const [initialLoading, setInitialLoading] = useState(Boolean(enabled));
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
+  const [endReached, setEndReached] = useState(false);
+
+  const loadPage = useCallback(
+    async ({ reset = false, refresh = false } = {}) => {
+      if (!enabled || isFetchingRef.current) {
+        return;
+      }
+
+      if (!reset && endReachedRef.current) {
+        return;
+      }
+
+      isFetchingRef.current = true;
+      setError("");
+
+      if (reset) {
+        if (refresh) {
+          setRefreshing(true);
+        } else {
+          setInitialLoading(true);
+        }
+
+        cursorRef.current = null;
+        endReachedRef.current = false;
+        setEndReached(false);
+      } else {
+        setLoadingMore(true);
+      }
+
+      try {
+        const page = await getEventsPage({
+          pageSize: DEFAULT_EVENTS_PAGE_SIZE,
+          lastDoc: reset ? null : cursorRef.current,
+          status,
+          organizerId,
+        });
+
+        cursorRef.current = page.lastDoc;
+        endReachedRef.current = !page.hasMore;
+        setEndReached(!page.hasMore);
+        setError("");
+        setEvents((currentEvents) =>
+          reset ? page.events : [...currentEvents, ...page.events],
+        );
+      } catch (feedError) {
+        console.error("Erro ao carregar feed de eventos:", feedError);
+        setError(getEventFeedErrorMessage(feedError));
+      } finally {
+        isFetchingRef.current = false;
+        setInitialLoading(false);
+        setLoadingMore(false);
+        setRefreshing(false);
+      }
+    },
+    [enabled, organizerId, status],
+  );
+
+  useEffect(() => {
+    cursorRef.current = null;
+    endReachedRef.current = false;
+    setEvents([]);
+    setError("");
+    setEndReached(false);
+
+    if (!enabled) {
+      setInitialLoading(false);
+      return;
+    }
+
+    loadPage({ reset: true });
+  }, [enabled, loadPage]);
+
+  const loadMore = useCallback(() => {
+    loadPage();
+  }, [loadPage]);
+
+  const refresh = useCallback(() => {
+    loadPage({ reset: true, refresh: true });
+  }, [loadPage]);
+
+  const retry = useCallback(() => {
+    loadPage({ reset: true });
+  }, [loadPage]);
+
+  return {
+    events,
+    initialLoading,
+    loadingMore,
+    refreshing,
+    error,
+    endReached,
+    loadMore,
+    refresh,
+    retry,
+  };
+}
+
+function FeedStatus({ children }) {
+  return (
+    <View style={feedStyles.statusContainer}>
+      <Text style={feedStyles.statusText}>{children}</Text>
+    </View>
+  );
+}
+
+function EventFeedContent({
+  events,
+  initialLoading,
+  loadingMore,
+  error,
+  endReached,
+  onRetry,
+  podeAvaliar,
+}) {
+  if (initialLoading) {
+    return (
+      <View style={feedStyles.statusContainer}>
+        <ActivityIndicator color={colors.primary} />
+        <Text style={feedStyles.statusText}>Carregando eventos...</Text>
+      </View>
+    );
+  }
+
+  if (error && events.length === 0) {
+    return (
+      <View style={feedStyles.statusContainer}>
+        <Text style={feedStyles.statusText}>{error}</Text>
+        {onRetry ? (
+          <TouchableOpacity onPress={onRetry} style={feedStyles.retryButton}>
+            <Text style={feedStyles.retryText}>Tentar novamente</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    );
+  }
+
+  if (events.length === 0) {
+    return <FeedStatus>Nenhum evento encontrado.</FeedStatus>;
+  }
+
+  return (
+    <>
+      {events.map((event) => (
+        <Evento key={event.id} evento={event} podeAvaliar={podeAvaliar} />
+      ))}
+
+      {loadingMore ? (
+        <View style={feedStyles.nextPageLoading}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={feedStyles.statusText}>Carregando mais eventos...</Text>
+        </View>
+      ) : null}
+
+      {error ? (
+        <View style={feedStyles.nextPageLoading}>
+          <Text style={feedStyles.statusText}>{error}</Text>
+          {onRetry ? (
+            <TouchableOpacity onPress={onRetry} style={feedStyles.retryButton}>
+              <Text style={feedStyles.retryText}>Tentar novamente</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      ) : null}
+
+      {endReached ? <FeedStatus>Fim da lista.</FeedStatus> : null}
+    </>
+  );
+}
+
+function isCloseToBottom({ layoutMeasurement, contentOffset, contentSize }) {
+  return layoutMeasurement.height + contentOffset.y >= contentSize.height - 300;
+}
+
 export const EventoTesteScreen = () => {
   const [organizer, setOrganizer] = useState(null);
   const [events, setEvents] = useState([]);
@@ -299,10 +510,26 @@ export const EventoTesteScreen = () => {
 };
 
 export const FeedVisitanteScreen = () => {
-  const { usuario, firebaseUser, logout, loading } = useAuth();
+  const feed = useEventFeed();
+
+  function handleScroll(event) {
+    if (isCloseToBottom(event.nativeEvent)) {
+      feed.loadMore();
+    }
+  }
+
   return (
     <MainContainer
       top={<Header title="Feed Visitante" />}
+      onScroll={handleScroll}
+      refreshControl={
+        <RefreshControl
+          refreshing={feed.refreshing}
+          onRefresh={feed.refresh}
+          colors={[colors.primary]}
+          tintColor={colors.primary}
+        />
+      }
       bottom={
         <Icons
           tipo="visitante"
@@ -311,99 +538,93 @@ export const FeedVisitanteScreen = () => {
         />
       }
     >
-      <TelaTemp nome={usuario} />
-      <Text>
-        {"\n"}FEED - VISITANTE - SCREEN{"\n"}
-      </Text>
-      <Evento
+      <EventFeedContent
         podeAvaliar
-        evento={{
-          id: "teste-visitante-1",
-          organizerId: "organizer-teste",
-          organizerName: "Casa da Cultura",
-          title: "Mostra de Cinema",
-          description:
-            "Johannes Vermeer foi um pintor holandes do seculo XVII, famoso por cenas domesticas luminosas e detalhadas.",
-          themes: ["cinema", "cultura_local"],
-          address: "Museu Central, sala X",
-          startAt: new Date(2026, 4, 15),
-          endAt: null,
-          poster: null,
-          status: "ongoing",
-          reviewStats: {
-            count: 1,
-            ratingSum: 4,
-            ratingAverage: 4,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }}
-      />
-      <Evento
-        podeAvaliar
-        evento={{
-          id: "teste-visitante-2",
-          organizerId: "organizer-teste",
-          organizerName: "Coletivo Arte Viva",
-          title: "Sarau Cultural",
-          description:
-            "Noite de poesia, musica e performances abertas para artistas locais.",
-          themes: ["musica", "literatura"],
-          address: "Praca das Artes",
-          startAt: new Date(2026, 4, 20),
-          endAt: null,
-          poster: null,
-          status: "ongoing",
-          reviewStats: {
-            count: 1,
-            ratingSum: 3,
-            ratingAverage: 3,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }}
+        events={feed.events}
+        initialLoading={feed.initialLoading}
+        loadingMore={feed.loadingMore}
+        error={feed.error}
+        endReached={feed.endReached}
+        onRetry={feed.retry}
       />
     </MainContainer>
   );
 };
-export const FeedOrganizadorScreen = () => {
-  const { usuario, firebaseUser, logout, loading } = useAuth();
-  const [selectedImg, setSelectedImg] = useState(null);
+export const FeedOrganizadorScreen = ({ navigation }) => {
+  const { usuario, firebaseUser } = useAuth();
+  const organizerId = usuario?.id ?? firebaseUser?.uid ?? null;
+  const feed = useEventFeed({
+    organizerId,
+    status: null,
+    enabled: Boolean(organizerId),
+  });
+
+  function handleScroll(event) {
+    if (isCloseToBottom(event.nativeEvent)) {
+      feed.loadMore();
+    }
+  }
+
   return (
     <MainContainer
       top={<Header title="Feed Organizador" />}
+      onScroll={handleScroll}
+      refreshControl={
+        <RefreshControl
+          refreshing={feed.refreshing}
+          onRefresh={feed.refresh}
+          colors={[colors.primary]}
+          tintColor={colors.primary}
+        />
+      }
       bottom={
         <Icons
           tipo="organizador"
-          onCriar={() => alert("criar evento")}
+          onCriar={() => navigation.navigate("CadastroEvento")}
           onFiltro={() => alert("filtrar eventos")}
         />
       }
     >
-      <TelaTemp nome={usuario} />;
-      <Evento
-        evento={{
-          id: "teste-organizador-1",
-          organizerId: usuario?.id ?? "organizer-teste",
-          organizerName: usuario?.name ?? "Organizador",
-          title: "Evento publicado",
-          description:
-            "Visualizacao de teste para o organizador acompanhar o card publicado.",
-          themes: ["outros"],
-          address: "Centro Cultural",
-          startAt: new Date(),
-          endAt: null,
-          poster: null,
-          status: "ongoing",
-          reviewStats: {
-            count: 1,
-            ratingSum: 5,
-            ratingAverage: 5,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }}
+      <EventFeedContent
+        events={feed.events}
+        initialLoading={feed.initialLoading}
+        loadingMore={feed.loadingMore}
+        error={organizerId ? feed.error : "Organizador não encontrado."}
+        endReached={feed.endReached}
+        onRetry={organizerId ? feed.retry : null}
       />
     </MainContainer>
   );
 };
+
+const feedStyles = StyleSheet.create({
+  statusContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 28,
+    gap: 10,
+  },
+  statusText: {
+    color: colors.text,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  retryButton: {
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: colors.primary,
+  },
+  retryText: {
+    color: colors.white,
+    fontWeight: "700",
+  },
+  nextPageLoading: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 18,
+    gap: 8,
+  },
+});

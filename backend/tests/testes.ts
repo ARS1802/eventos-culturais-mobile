@@ -152,14 +152,28 @@ async function main(): Promise<void> {
     await pause();
 
     eventId = await runStep("3. Criar Evento", async () => {
-      const asset = {
+      const assetA = {
         uri: "file:///home/arthur/Downloads/Imagens/EstatuaBrasileiraPoster.png",
         mimeType: "image/png",
         width: 1200,
         height: 1800,
       };
 
-      const result = await registerEvent(
+      const assetB = {
+        uri: "file:///home/arthur/Downloads/Imagens/Circo.png",
+        mimeType: "image/png",
+        width: 1200,
+        height: 1800,
+      };
+
+      const assetC = {
+        uri: "file:///home/arthur/Downloads/Imagens/Zoo.png",
+        mimeType: "image/png",
+        width: 1200,
+        height: 1800,
+      };
+
+      const resultA = await registerEvent(
         {
           organizerId,
           title: "Museu Brasileiro",
@@ -171,11 +185,43 @@ async function main(): Promise<void> {
           endAt: new Date("2026-08-15T21:00:00-03:00"),
           status: "ongoing",
         },
-        asset,
+        assetA,
       );
 
-      const id = assertEventSuccess(result);
+      const resultB = await registerEvent(
+        {
+          organizerId,
+          title: "Circo Colorido",
+          description: "Palhaçadas de aventuras! Não abrimos em dias úteis!",
+          address: "Rua Fernando Color = 1998",
+          themes: ["cultura_local", "teatro"],
+          startAt: new Date("2026-08-15T18:00:00-03:00"),
+          endAt: new Date("2026-08-15T21:00:00-03:00"),
+          status: "ongoing",
+        },
+        assetB,
+      );
+
+      const resultC = await registerEvent(
+        {
+          organizerId,
+          title: "Zoologico feral",
+          description: "Parque botanico legal! Não alimente os animais",
+          address: "Serrinha da rede baiana",
+          themes: ["cultura_local"],
+          startAt: new Date("2026-08-15T18:00:00-03:00"),
+          endAt: new Date("2026-08-15T21:00:00-03:00"),
+          status: "ongoing",
+        },
+        assetC,
+      );
+
+      const id = assertEventSuccess(resultA);
+      const idB = assertEventSuccess(resultB);
+      const idC = assertEventSuccess(resultC);
       const event = await getEvento({ eventoId: id });
+      const eventB = await getEvento({ eventoId: idB });
+      const eventC = await getEvento({ eventoId: idC });
 
       if (event?.address !== "Rua das Artes, 123 - Centro") {
         throw new Error("Endereço do evento não foi salvo corretamente.");
@@ -187,6 +233,8 @@ async function main(): Promise<void> {
 
       console.log("Evento criado com sucesso:");
       console.log(event);
+      console.log(eventB);
+      console.log(eventC);
 
       return id;
     });
