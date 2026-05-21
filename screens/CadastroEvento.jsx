@@ -70,49 +70,40 @@ export function CadastroEvento({ navigation }) {
   }
 
   async function concluir() {
-    const erroInputs = validarInputs([tituloRef, descricaoRef, enderecoRef]);
-    if (erroInputs) { setErro(erroInputs); return; }
-    if (!tema) { setErro("Selecione um tema."); return; }
-    if (!dataInicio) { setErro("Selecione a data de início."); return; }
-    if (usuario?.role !== "organizer") { setErro("Apenas organizadores podem cadastrar eventos."); return; }
+  const erroInputs = validarInputs([tituloRef, descricaoRef, enderecoRef]);
+  if (erroInputs) { setErro(erroInputs); return; }
+  if (!tema) { setErro("Selecione um tema."); return; }
 
-    const organizerId = usuario?.id ?? firebaseUser?.uid;
+  setErro("");
+  setSubmitting(true);
+  try {
+    const id = await registerEvent(
+      {
+        organizerId: usuario.id,
+        title: titulo,
+        description: descricao,
+        address: endereco,
+        themes: [tema],
+        startAt: new Date(),
+        endAt: null,
+        status: "ongoing",
+      },
+      cartaz // asset do ImagePicker 
+    );
 
-    if (!organizerId) { setErro("Organizador não encontrado."); return; }
-
-    setErro("");
-    setSubmitting(true);
-    try {
-      const eventStartAt = combinarDataHora(dataInicio, horaInicio);
-      const eventEndAt = dataFim ? combinarDataHora(dataFim, horaFim) : null;
-      const result = await registerEvent(
-        {
-          organizerId,
-          title: titulo,
-          description: descricao,
-          address: endereco,
-          themes: [tema],
-          startAt: eventStartAt,
-          endAt: eventEndAt,
-          status: "ongoing",
-        },
-        cartaz,
-      );
-
-      if (result === "FIRESTORE_ERROR") {
-        setErro("Não foi possível salvar o evento.");
-        return;
-      }
-
-      alert("Evento cadastrado com sucesso!");
-      navigation.goBack();
-    } catch (error) {
-      console.error("Erro ao cadastrar evento:", error);
-      setErro("Informações inválidas");
-    } finally {
-      setSubmitting(false);
+    if (id === "FIRESTORE_ERROR") {
+      setErro("Erro ao salvar evento. Tente novamente.");
+      return;
     }
+
+    alert("Evento cadastrado com sucesso!");
+    navigation.goBack();
+  } catch (error) {
+    setErro("Informações inválidas");
+  } finally {
+    setSubmitting(false);
   }
+}
 
   return (
     <MainContainer
