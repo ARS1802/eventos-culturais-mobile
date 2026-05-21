@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TouchableOpacity, StyleSheet, View } from "react-native";
 import {
   Bottom,
   Header,
@@ -7,7 +7,8 @@ import {
   Input,
   MainContainer,
   DatePicker,
-  SingleChoicePicker,
+  TimePicker,
+  MultipleChoicePicker,
   validarInputs,
 } from "../components";
 import colors from "../assets/colors";
@@ -19,7 +20,11 @@ function ButtonBottom({ color, title, onPress, disabled }) {
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
-      style={[styles.buttonBottom, { backgroundColor: color }, disabled && styles.buttonDisabled]}
+      style={[
+        styles.buttonBottom,
+        { backgroundColor: color },
+        disabled && styles.buttonDisabled,
+      ]}
     >
       <Text style={styles.buttonBottomText}>{title}</Text>
     </TouchableOpacity>
@@ -27,15 +32,15 @@ function ButtonBottom({ color, title, onPress, disabled }) {
 }
 
 export function CadastroEvento({ navigation }) {
-  const [titulo, setTitulo] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [endereco, setEndereco] = useState("");
-  const [tema, setTema] = useState("");
-  const [dataInicio, setDataInicio] = useState(null);
-  const [dataFim, setDataFim] = useState(null);
-  const [horaInicio, setHoraInicio] = useState(null);
-  const [horaFim, setHoraFim] = useState(null);
-  const [cartaz, setCartaz] = useState(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
+  const [themes, setThemes] = useState([]);
+  const [startAtDate, setStartAtDate] = useState(null);
+  const [endAtDate, setEndAtDate] = useState(null);
+  const [startAtTime, setStartAtTime] = useState(null);
+  const [endAtTime, setEndAtTime] = useState(null);
+  const [poster, setPoster] = useState(null);
   const [erro, setErro] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { usuario, firebaseUser } = useAuth();
@@ -55,6 +60,15 @@ export function CadastroEvento({ navigation }) {
     { label: "Outros", value: "outros" },
   ];
 
+  function voltar() {
+    if (navigation.canGoBack?.()) {
+      navigation.goBack();
+      return;
+    }
+
+    navigation.navigate("FeedOrganizador");
+  }
+
   function combinarDataHora(data, hora) {
     if (!data) {
       return null;
@@ -72,8 +86,11 @@ export function CadastroEvento({ navigation }) {
   async function concluir() {
     const erroInputs = validarInputs([tituloRef, descricaoRef, enderecoRef]);
     if (erroInputs) { setErro(erroInputs); return; }
-    if (!tema) { setErro("Selecione um tema."); return; }
-    if (!dataInicio) { setErro("Selecione a data de início."); return; }
+    if (themes.length === 0) {
+      setErro("Selecione ao menos um tema.");
+      return;
+    }
+    if (!startAtDate) { setErro("Selecione a data de início."); return; }
     if (usuario?.role !== "organizer") { setErro("Apenas organizadores podem cadastrar eventos."); return; }
 
     const organizerId = usuario?.id ?? firebaseUser?.uid;
@@ -83,20 +100,20 @@ export function CadastroEvento({ navigation }) {
     setErro("");
     setSubmitting(true);
     try {
-      const eventStartAt = combinarDataHora(dataInicio, horaInicio);
-      const eventEndAt = dataFim ? combinarDataHora(dataFim, horaFim) : null;
+      const startAt = combinarDataHora(startAtDate, startAtTime);
+      const endAt = endAtDate ? combinarDataHora(endAtDate, endAtTime) : null;
       const result = await registerEvent(
         {
           organizerId,
-          title: titulo,
-          description: descricao,
-          address: endereco,
-          themes: [tema],
-          startAt: eventStartAt,
-          endAt: eventEndAt,
+          title,
+          description,
+          address,
+          themes,
+          startAt,
+          endAt,
           status: "ongoing",
         },
-        cartaz,
+        poster,
       );
 
       if (result === "FIRESTORE_ERROR") {
@@ -105,7 +122,7 @@ export function CadastroEvento({ navigation }) {
       }
 
       alert("Evento cadastrado com sucesso!");
-      navigation.goBack();
+      voltar();
     } catch (error) {
       console.error("Erro ao cadastrar evento:", error);
       setErro("Informações inválidas");
@@ -116,7 +133,20 @@ export function CadastroEvento({ navigation }) {
 
   return (
     <MainContainer
-      top={<Header title="Novo Evento" />}
+      top={
+        <View style={styles.topContainer}>
+          <Header title="Novo Evento" />
+          <TouchableOpacity
+            accessibilityLabel="Voltar"
+            accessibilityRole="button"
+            disabled={submitting}
+            onPress={voltar}
+            style={[styles.voltarButton, submitting && styles.buttonDisabled]}
+          >
+            <Text style={styles.voltarText}>{"<"}</Text>
+          </TouchableOpacity>
+        </View>
+      }
       bottom={
         <Bottom transparent={true}>
           <ButtonBottom
@@ -132,53 +162,52 @@ export function CadastroEvento({ navigation }) {
         ref={tituloRef}
         label="Título"
         placeholder="Digite o título do evento..."
-        value={titulo}
-        onChangeText={setTitulo}
+        value={title}
+        onChangeText={setTitle}
         validationType="textoLivre"
       />
       <Input
         ref={descricaoRef}
         label="Descrição"
         placeholder="Faça uma breve descrição do evento..."
-        value={descricao}
-        onChangeText={setDescricao}
+        value={description}
+        onChangeText={setDescription}
         validationType="textoLivre"
       />
       <Input
         ref={enderecoRef}
         label="Endereço"
         placeholder="Aonde será o evento...?"
-        value={endereco}
-        onChangeText={setEndereco}
+        value={address}
+        onChangeText={setAddress}
         validationType="textoLivre"
       />
 
       <DatePicker
         label="Datas"
-        startDate={dataInicio}
-        endDate={dataFim}
-        onChangeStartDate={setDataInicio}
-        onChangeEndDate={setDataFim}
+        startDate={startAtDate}
+        endDate={endAtDate}
+        onChangeStartDate={setStartAtDate}
+        onChangeEndDate={setEndAtDate}
       />
-      <DatePicker
+      <TimePicker
         label="Horários"
-        mode="time"
-        startDate={horaInicio}
-        endDate={horaFim}
-        onChangeStartDate={setHoraInicio}
-        onChangeEndDate={setHoraFim}
+        startTime={startAtTime}
+        endTime={endAtTime}
+        onChangeStartTime={setStartAtTime}
+        onChangeEndTime={setEndAtTime}
       />
 
-      <SingleChoicePicker
-        selected={tema}
-        onSelect={setTema}
+      <MultipleChoicePicker
+        selected={themes}
+        onChange={setThemes}
         options={temas}
       />
 
       <ImagePickerButton
         cor={colors.primary}
-        texto={cartaz ? "Cartaz selecionado" : "Upload cartaz"}
-        onPick={setCartaz}
+        texto={poster ? "Cartaz selecionado" : "Upload cartaz"}
+        onPick={setPoster}
         style={styles.uploadButton}
       />
 
@@ -190,6 +219,24 @@ export function CadastroEvento({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  topContainer: {
+    width: "100%",
+  },
+  voltarButton: {
+    position: "absolute",
+    left: 16,
+    top: 13,
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 20,
+  },
+  voltarText: {
+    color: colors.white,
+    fontSize: 26,
+    fontWeight: "800",
+  },
   buttonBottom: {
     paddingVertical: 12,
     paddingHorizontal: 20,

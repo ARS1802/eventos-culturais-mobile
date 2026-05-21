@@ -1,5 +1,6 @@
 export { Bottom } from "./Bottom";
 export { DatePicker } from "./DatePicker";
+export { TimePicker } from "./TimePicker";
 export { Header } from "./Header";
 export { Icons } from "./Icons";
 export { Input, validarInputs } from "./Input";

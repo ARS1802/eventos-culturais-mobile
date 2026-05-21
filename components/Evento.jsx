@@ -17,6 +17,48 @@ function limitarEstrelas(valor) {
   return Math.max(0, Math.min(5, Math.round(numero)));
 }
 
+function ehDataValida(valor) {
+  if (valor instanceof Date) {
+    return !Number.isNaN(valor.getTime());
+  }
+
+  if (typeof valor === "string" || typeof valor === "number") {
+    return !Number.isNaN(new Date(valor).getTime());
+  }
+
+  return false;
+}
+
+/**
+ * Valida em runtime se o objeto tem a estrutura minima de CulturalEvent.
+ * Interfaces TypeScript nao existem no app compilado, entao checamos os campos.
+ *
+ * @param {unknown} valor
+ * @returns {valor is CulturalEvent}
+ */
+function ehCulturalEvent(valor) {
+  if (!valor || typeof valor !== "object") {
+    return false;
+  }
+
+  return (
+    typeof valor.id === "string" &&
+    typeof valor.organizerId === "string" &&
+    typeof valor.organizerName === "string" &&
+    typeof valor.title === "string" &&
+    typeof valor.description === "string" &&
+    typeof valor.address === "string" &&
+    Array.isArray(valor.themes) &&
+    ehDataValida(valor.startAt) &&
+    typeof valor.status === "string" &&
+    valor.reviewStats &&
+    typeof valor.reviewStats === "object" &&
+    typeof valor.reviewStats.count === "number" &&
+    typeof valor.reviewStats.ratingSum === "number" &&
+    typeof valor.reviewStats.ratingAverage === "number"
+  );
+}
+
 function formatarData(valor) {
   if (!valor) {
     return "data";
@@ -60,22 +102,23 @@ function formatarData(valor) {
  * @param {Object} props
  * @param {CulturalEvent} props.evento Evento seguindo a interface CulturalEvent.
  * @param {boolean} [props.podeAvaliar]
- * @param {Array} [props.avaliacoes]
  * @param {(evento: CulturalEvent) => void} [props.onPress]
  */
 export function Evento({
   evento,
   podeAvaliar = false,
-  avaliacoes = [],
   onPress,
 }) {
   const navigation = useNavigation();
 
-  if (!evento) {
+  if (!ehCulturalEvent(evento)) {
+    console.warn("Evento recebeu um objeto fora da interface CulturalEvent.");
     return null;
   }
 
   const {
+    id,
+    organizerId,
     title,
     organizerName,
     address,
@@ -93,8 +136,9 @@ export function Evento({
     }
 
     navigation.navigate("EventoInfo", {
+      eventoId: id,
+      organizerId,
       evento,
-      avaliacoes,
       podeAvaliar,
     });
   }

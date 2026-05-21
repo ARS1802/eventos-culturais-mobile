@@ -33,25 +33,32 @@ import {
 
 const eventosTesteFallback = [
   {
-    id: "teste-evento-1",
-    organizerId: "organizer-teste",
-    organizerName: "Casa da Cultura",
-    title: "Mostra de Cinema",
+    id: "8xbnw1AHzlx5MIfqTMm1",
+    organizerId: "ppOJRZTjkXfw1KZo7mY0APbVEPS2",
+    organizerName: "Olimpo",
+    title: "Esculturas Gregas",
     description:
-      "Evento cultural com exibicao de filmes locais e conversa com artistas.",
-    themes: ["cinema", "cultura_local"],
+    "cool estatua grega!",
+    themes: ["escultura", "cultura_local"],
     address: "Museu Central, sala X",
-    startAt: new Date(2026, 4, 15),
-    endAt: null,
-    poster: null,
+    startAt: new Date(2026, 4, 15, 18, 0, 0),
+    endAt: new Date(2026, 5, 15, 20, 0, 0),
+    poster: {
+      url: "https://firebasestorage.googleapis.com/v0/b/sacadacultural-1987b.firebasestorage.app/o/title%3D7_-_ESTATUA_eventId%3D8xbnw1AHzlx5MIfqTMm1_id%3DMnusO9uXUisf62WTnNRP.png?alt=media&token=4f4c17be-edf5-4b36-8eed-ccc83d9d7e44",
+      path: "title=7_-_ESTATUA_eventId=8xbnw1AHzlx5MIfqTMm1_id=MnusO9uXUisf62WTnNRP.png",
+      width: 0,
+      height: 1800,
+      mimeType: "image/png",
+      updatedAt: new Date(2026, 4, 18, 20, 4, 17),
+    },
     status: "ongoing",
     reviewStats: {
-      count: 1,
-      ratingSum: 4,
-      ratingAverage: 4,
+      count: 0,
+      ratingSum: 0,
+      ratingAverage: 0,
     },
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(2026, 5, 15, 10, 0, 0),
+    updatedAt: new Date(2026, 6, 15, 12, 0, 0),
   },
   {
     id: "teste-evento-2",
@@ -71,7 +78,7 @@ const eventosTesteFallback = [
       ratingSum: 3,
       ratingAverage: 3,
     },
-    createdAt: new Date(),
+    createdAt: new Date(2026, 3, 20, 10, 0, 0),
     updatedAt: new Date(),
   },
 ];
@@ -533,7 +540,7 @@ export const FeedVisitanteScreen = () => {
       bottom={
         <Icons
           tipo="visitante"
-          onAvaliar={() => alert("avaliar evento")}
+          onAvaliar={() => alert("histórico de avaliações")}
           onFiltro={() => alert("filtrar eventos")}
         />
       }
