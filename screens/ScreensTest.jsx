@@ -1,14 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useAuth } from "../navigation/contexts/AuthContext";
+import { useEffect, useRef, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { converterParaObjeto, formatarValor } from "../utils/converters";
 import { ImagePickerButton } from "../components";
 import {
@@ -26,32 +17,34 @@ import {
 import colors from "../assets/colors";
 import { getUser } from "../backend/firebase/services/getUser";
 import { getEvent } from "../backend/firebase/services/getEvent";
-import {
-  DEFAULT_EVENTS_PAGE_SIZE,
-  getEventsPage,
-} from "../backend/firebase/services/getEventsPage";
 
 const eventosTesteFallback = [
   {
-    id: "teste-evento-1",
-    organizerId: "organizer-teste",
-    organizerName: "Casa da Cultura",
-    title: "Mostra de Cinema",
-    description:
-      "Evento cultural com exibicao de filmes locais e conversa com artistas.",
-    themes: ["cinema", "cultura_local"],
+    id: "8xbnw1AHzlx5MIfqTMm1",
+    organizerId: "ppOJRZTjkXfw1KZo7mY0APbVEPS2",
+    organizerName: "Olimpo",
+    title: "Esculturas Gregas",
+    description: "cool estatua grega!",
+    themes: ["escultura", "cultura_local"],
     address: "Museu Central, sala X",
-    startAt: new Date(2026, 4, 15),
-    endAt: null,
-    poster: null,
+    startAt: new Date(2026, 4, 15, 18, 0, 0),
+    endAt: new Date(2026, 5, 15, 20, 0, 0),
+    poster: {
+      url: "https://firebasestorage.googleapis.com/v0/b/sacadacultural-1987b.firebasestorage.app/o/title%3D7_-_ESTATUA_eventId%3D8xbnw1AHzlx5MIfqTMm1_id%3DMnusO9uXUisf62WTnNRP.png?alt=media&token=4f4c17be-edf5-4b36-8eed-ccc83d9d7e44",
+      path: "title=7_-_ESTATUA_eventId=8xbnw1AHzlx5MIfqTMm1_id=MnusO9uXUisf62WTnNRP.png",
+      width: 0,
+      height: 1800,
+      mimeType: "image/png",
+      updatedAt: new Date(2026, 4, 18, 20, 4, 17),
+    },
     status: "ongoing",
     reviewStats: {
-      count: 1,
-      ratingSum: 4,
-      ratingAverage: 4,
+      count: 0,
+      ratingSum: 0,
+      ratingAverage: 0,
     },
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date(2026, 5, 15, 10, 0, 0),
+    updatedAt: new Date(2026, 6, 15, 12, 0, 0),
   },
   {
     id: "teste-evento-2",
@@ -71,7 +64,7 @@ const eventosTesteFallback = [
       ratingSum: 3,
       ratingAverage: 3,
     },
-    createdAt: new Date(),
+    createdAt: new Date(2026, 3, 20, 10, 0, 0),
     updatedAt: new Date(),
   },
 ];
@@ -233,205 +226,6 @@ export const CadastroScreen = () => {
   return <TelaTemp nome={"Cadastro"} />;
 };
 
-function getEventFeedErrorMessage(error) {
-  const message = String(error?.message ?? "").toLowerCase();
-
-  if (
-    error?.code === "failed-precondition" &&
-    message.includes("requires an index")
-  ) {
-    return "O Firestore precisa de um índice para essa combinação de filtro e ordenação. Crie o índice indicado no console e tente novamente quando ele ficar pronto.";
-  }
-
-  return "Não foi possível carregar os eventos.";
-}
-
-function useEventFeed({
-  organizerId = null,
-  status = null,
-  enabled = true,
-} = {}) {
-  const cursorRef = useRef(null);
-  const isFetchingRef = useRef(false);
-  const endReachedRef = useRef(false);
-  const [events, setEvents] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(Boolean(enabled));
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState("");
-  const [endReached, setEndReached] = useState(false);
-
-  const loadPage = useCallback(
-    async ({ reset = false, refresh = false } = {}) => {
-      if (!enabled || isFetchingRef.current) {
-        return;
-      }
-
-      if (!reset && endReachedRef.current) {
-        return;
-      }
-
-      isFetchingRef.current = true;
-      setError("");
-
-      if (reset) {
-        if (refresh) {
-          setRefreshing(true);
-        } else {
-          setInitialLoading(true);
-        }
-
-        cursorRef.current = null;
-        endReachedRef.current = false;
-        setEndReached(false);
-      } else {
-        setLoadingMore(true);
-      }
-
-      try {
-        const page = await getEventsPage({
-          pageSize: DEFAULT_EVENTS_PAGE_SIZE,
-          lastDoc: reset ? null : cursorRef.current,
-          status,
-          organizerId,
-        });
-
-        cursorRef.current = page.lastDoc;
-        endReachedRef.current = !page.hasMore;
-        setEndReached(!page.hasMore);
-        setError("");
-        setEvents((currentEvents) =>
-          reset ? page.events : [...currentEvents, ...page.events],
-        );
-      } catch (feedError) {
-        console.error("Erro ao carregar feed de eventos:", feedError);
-        setError(getEventFeedErrorMessage(feedError));
-      } finally {
-        isFetchingRef.current = false;
-        setInitialLoading(false);
-        setLoadingMore(false);
-        setRefreshing(false);
-      }
-    },
-    [enabled, organizerId, status],
-  );
-
-  useEffect(() => {
-    cursorRef.current = null;
-    endReachedRef.current = false;
-    setEvents([]);
-    setError("");
-    setEndReached(false);
-
-    if (!enabled) {
-      setInitialLoading(false);
-      return;
-    }
-
-    loadPage({ reset: true });
-  }, [enabled, loadPage]);
-
-  const loadMore = useCallback(() => {
-    loadPage();
-  }, [loadPage]);
-
-  const refresh = useCallback(() => {
-    loadPage({ reset: true, refresh: true });
-  }, [loadPage]);
-
-  const retry = useCallback(() => {
-    loadPage({ reset: true });
-  }, [loadPage]);
-
-  return {
-    events,
-    initialLoading,
-    loadingMore,
-    refreshing,
-    error,
-    endReached,
-    loadMore,
-    refresh,
-    retry,
-  };
-}
-
-function FeedStatus({ children }) {
-  return (
-    <View style={feedStyles.statusContainer}>
-      <Text style={feedStyles.statusText}>{children}</Text>
-    </View>
-  );
-}
-
-function EventFeedContent({
-  events,
-  initialLoading,
-  loadingMore,
-  error,
-  endReached,
-  onRetry,
-  podeAvaliar,
-}) {
-  if (initialLoading) {
-    return (
-      <View style={feedStyles.statusContainer}>
-        <ActivityIndicator color={colors.primary} />
-        <Text style={feedStyles.statusText}>Carregando eventos...</Text>
-      </View>
-    );
-  }
-
-  if (error && events.length === 0) {
-    return (
-      <View style={feedStyles.statusContainer}>
-        <Text style={feedStyles.statusText}>{error}</Text>
-        {onRetry ? (
-          <TouchableOpacity onPress={onRetry} style={feedStyles.retryButton}>
-            <Text style={feedStyles.retryText}>Tentar novamente</Text>
-          </TouchableOpacity>
-        ) : null}
-      </View>
-    );
-  }
-
-  if (events.length === 0) {
-    return <FeedStatus>Nenhum evento encontrado.</FeedStatus>;
-  }
-
-  return (
-    <>
-      {events.map((event) => (
-        <Evento key={event.id} evento={event} podeAvaliar={podeAvaliar} />
-      ))}
-
-      {loadingMore ? (
-        <View style={feedStyles.nextPageLoading}>
-          <ActivityIndicator color={colors.primary} />
-          <Text style={feedStyles.statusText}>Carregando mais eventos...</Text>
-        </View>
-      ) : null}
-
-      {error ? (
-        <View style={feedStyles.nextPageLoading}>
-          <Text style={feedStyles.statusText}>{error}</Text>
-          {onRetry ? (
-            <TouchableOpacity onPress={onRetry} style={feedStyles.retryButton}>
-              <Text style={feedStyles.retryText}>Tentar novamente</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      ) : null}
-
-      {endReached ? <FeedStatus>Fim da lista.</FeedStatus> : null}
-    </>
-  );
-}
-
-function isCloseToBottom({ layoutMeasurement, contentOffset, contentSize }) {
-  return layoutMeasurement.height + contentOffset.y >= contentSize.height - 300;
-}
-
 export const EventoTesteScreen = () => {
   const [organizer, setOrganizer] = useState(null);
   const [events, setEvents] = useState([]);
@@ -533,7 +327,7 @@ export const FeedVisitanteScreen = () => {
       bottom={
         <Icons
           tipo="visitante"
-          onAvaliar={() => alert("avaliar evento")}
+          onAvaliar={() => alert("histórico de avaliações")}
           onFiltro={() => alert("filtrar eventos")}
         />
       }

@@ -1,4 +1,5 @@
 import {
+  documentId,
   getDocs,
   limit,
   orderBy,
@@ -31,6 +32,7 @@ function normalizePageSize(pageSize) {
  * @param {string|null} [options.status]
  * @param {string|null} [options.organizerId]
  * @param {Date} [options.minimumStartAt]
+ * @param {"startAt"|"documentId"} [options.orderByField]
  * @returns {Promise<{
  *   events: import("../../models/CulturalEvent").CulturalEvent[],
  *   lastDoc: import("firebase/firestore").QueryDocumentSnapshot|null,
@@ -43,6 +45,7 @@ export async function getEventsPage({
   status = null,
   organizerId = null,
   minimumStartAt = DEFAULT_MINIMUM_START_AT,
+  orderByField = "startAt",
 } = {}) {
   const constraints = [];
   const normalizedOrganizerId = organizerId?.trim?.();
@@ -56,11 +59,15 @@ export async function getEventsPage({
     constraints.push(where("status", "==", status));
   }
 
-  if (!normalizedOrganizerId && !status) {
+  if (!normalizedOrganizerId && !status && orderByField === "startAt") {
     constraints.push(where("startAt", ">=", minimumStartAt));
   }
 
-  constraints.push(orderBy("startAt", "asc"));
+  if (orderByField === "documentId") {
+    constraints.push(orderBy(documentId(), "asc"));
+  } else {
+    constraints.push(orderBy("startAt", "asc"));
+  }
 
   if (lastDoc) {
     constraints.push(startAfter(lastDoc));

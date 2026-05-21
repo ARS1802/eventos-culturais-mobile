@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Alert, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import {
   Bottom,
   Header,
@@ -65,7 +65,7 @@ function ButtonBottom({ color, title, onPress, disabled }) {
   );
 }
 
-function LoginButton({ onPress, disabled, navigation}) {
+function LoginButton({ onPress, disabled, navigation }) {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -136,9 +136,10 @@ export const Login = ({ navigation }) => {
       }
     } catch (error) {
       alert(
-        "Login " + isWrongPasswordError(error)
-          ? "Senha incorreta."
-          : getLoginErrorMessage(error),
+        "Login " +
+          (isWrongPasswordError(error)
+            ? "Senha incorreta."
+            : getLoginErrorMessage(error)),
       );
     } finally {
       setSubmitting(false);
@@ -179,7 +180,7 @@ export const Login = ({ navigation }) => {
       />
       <TouchableOpacity
         disabled={submitting}
-        onPress={() => navigation.navigate("Recuperar Senha")}
+        onPress={() => navigation.navigate("RecuperarSenha")}
       >
         <Text style={styles.linkRecuperar}>Esqueceu sua senha?</Text>
       </TouchableOpacity>

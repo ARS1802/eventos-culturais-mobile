@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -10,6 +10,10 @@ import {
   View,
 } from "react-native";
 import colors from "../assets/colors";
+import { getEvent } from "../backend/firebase/services/getEvent";
+import { getReview } from "../backend/firebase/services/getReview";
+import { registerReview } from "../backend/firebase/services/registerReview";
+import { useAuth } from "../navigation/contexts/AuthContext";
 import { Header } from "./Header";
 import { MainContainer } from "./MainContainer";
 
@@ -27,9 +31,13 @@ function limitarEstrelas(valor) {
   return Math.max(0, Math.min(5, Math.round(numero)));
 }
 
-function formatarData(valor) {
+function criarData(valor) {
   if (!valor) {
-    return "data";
+    return null;
+  }
+
+  if (typeof valor?.toDate === "function") {
+    return valor.toDate();
   }
 
   const texto = String(valor);
@@ -53,6 +61,16 @@ function formatarData(valor) {
     );
   }
 
+  return data;
+}
+
+function formatarData(valor) {
+  const data = criarData(valor);
+
+  if (!data) {
+    return "data";
+  }
+
   if (Number.isNaN(data.getTime())) {
     return String(valor);
   }
@@ -61,6 +79,23 @@ function formatarData(valor) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+  }).format(data);
+}
+
+function formatarHorario(valor) {
+  const data = criarData(valor);
+
+  if (!data) {
+    return "horario";
+  }
+
+  if (Number.isNaN(data.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(data);
 }
 
@@ -85,23 +120,210 @@ function Estrelas({ valor, tamanho = 24, selecionavel = false, onSelect }) {
   );
 }
 
+function mesclarAvaliacoes(atuais, proximas) {
+  const porId = new Map();
+
+  [...proximas, ...atuais].forEach((avaliacao, index) => {
+    const chave =
+      avaliacao.id ??
+      `${avaliacao.eventId ?? "event"}-${avaliacao.visitorId ?? "visitor"}-${index}`;
+
+    if (!porId.has(chave)) {
+      porId.set(chave, avaliacao);
+    }
+  });
+
+  return Array.from(porId.values());
+}
+
 /**
  * Tela detalhada de evento.
  *
  * @param {Object} props
- * @param {{ params?: { evento?: CulturalEvent, podeAvaliar?: boolean, avaliacoes?: Array } }} [props.route]
+ * @param {{ params?: { eventoId?: string, organizerId?: string, evento?: CulturalEvent, podeAvaliar?: boolean, avaliacoes?: Array } }} [props.route]
  * @param {{ goBack?: () => void }} [props.navigation]
  */
 export function EventoInfo({ route, navigation }) {
+  const { usuario } = useAuth();
   /** @type {CulturalEvent | null} */
-  const evento = useMemo(() => route?.params?.evento ?? null, [route]);
+  const eventoParam = useMemo(() => route?.params?.evento ?? null, [route]);
+  const [evento, setEvento] = useState(eventoParam);
+  const eventoId = route?.params?.eventoId ?? evento?.id ?? "";
+  const organizerId = route?.params?.organizerId ?? evento?.organizerId ?? "";
   const podeAvaliar = Boolean(route?.params?.podeAvaliar);
-  const avaliacoes = Array.isArray(route?.params?.avaliacoes)
-    ? route.params.avaliacoes
-    : [];
+  const [avaliacoes, setAvaliacoes] = useState(
+    Array.isArray(route?.params?.avaliacoes) ? route.params.avaliacoes : [],
+  );
+  const [carregandoEvento, setCarregandoEvento] = useState(!eventoParam);
+  const [erroEvento, setErroEvento] = useState("");
   const [avaliando, setAvaliando] = useState(false);
+  const [publicandoAvaliacao, setPublicandoAvaliacao] = useState(false);
   const [nota, setNota] = useState(0);
   const [textoAvaliacao, setTextoAvaliacao] = useState("");
+
+  useEffect(() => {
+    setEvento(eventoParam);
+  }, [eventoParam]);
+
+  useEffect(() => {
+    setAvaliacoes(
+      Array.isArray(route?.params?.avaliacoes) ? route.params.avaliacoes : [],
+    );
+  }, [route]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function carregarEvento() {
+      if (eventoParam || !eventoId) {
+        setCarregandoEvento(false);
+        return;
+      }
+
+      try {
+        setCarregandoEvento(true);
+        setErroEvento("");
+
+        const eventoEncontrado = await getEvent({ eventoId });
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (!eventoEncontrado) {
+          setErroEvento("Evento não encontrado.");
+          setEvento(null);
+          return;
+        }
+
+        setEvento(eventoEncontrado);
+      } catch (error) {
+        console.error("Erro ao carregar evento:", error);
+
+        if (isMounted) {
+          setErroEvento("Não foi possível carregar o evento.");
+        }
+      } finally {
+        if (isMounted) {
+          setCarregandoEvento(false);
+        }
+      }
+    }
+
+    carregarEvento();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [eventoId, eventoParam]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function carregarAvaliacoesDoVisitante() {
+      if (!evento?.id || !usuario?.id) {
+        return;
+      }
+
+      try {
+        const avaliacoesDoVisitante = await getReview(null, usuario.id);
+
+        if (!isMounted || !Array.isArray(avaliacoesDoVisitante)) {
+          return;
+        }
+
+        const avaliacoesDoEvento = avaliacoesDoVisitante.filter(
+          (avaliacao) => avaliacao.eventId === evento.id,
+        );
+
+        setAvaliacoes((atuais) =>
+          mesclarAvaliacoes(atuais, avaliacoesDoEvento),
+        );
+      } catch (error) {
+        console.error("Erro ao carregar avaliações do visitante:", error);
+      }
+    }
+
+    carregarAvaliacoesDoVisitante();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [evento?.id, usuario?.id]);
+
+  async function publicarAvaliacao() {
+    if (!evento) {
+      return;
+    }
+
+    if (!usuario?.id) {
+      alert("Faça login para avaliar o evento.");
+      return;
+    }
+
+    if (nota < 1) {
+      alert("Selecione uma nota de 1 a 5.");
+      return;
+    }
+
+    setPublicandoAvaliacao(true);
+
+    try {
+      const comentario = textoAvaliacao.trim();
+      const visitorName = usuario.name?.trim?.() || "Visitante";
+      const reviewId = await registerReview({
+        eventId: evento.id,
+        visitorId: usuario.id,
+        organizerId: organizerId || evento.organizerId,
+        rating: nota,
+        comment: comentario,
+        visitorName,
+      });
+
+      if (reviewId === "FIRESTORE_ERROR") {
+        alert("Não foi possível publicar a avaliação.");
+        return;
+      }
+
+      const avaliacaoPublicada = {
+        id: reviewId,
+        eventId: evento.id,
+        visitorId: usuario.id,
+        organizerId: organizerId || evento.organizerId,
+        rating: nota,
+        comment: comentario,
+        visitorName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const statsAtuais = evento.reviewStats ?? {
+        count: 0,
+        ratingSum: 0,
+        ratingAverage: 0,
+      };
+      const proximoCount = statsAtuais.count + 1;
+      const proximoRatingSum = statsAtuais.ratingSum + nota;
+
+      setAvaliacoes((atuais) => mesclarAvaliacoes(atuais, [avaliacaoPublicada]));
+      setEvento({
+        ...evento,
+        reviewStats: {
+          count: proximoCount,
+          ratingSum: proximoRatingSum,
+          ratingAverage: proximoRatingSum / proximoCount,
+        },
+      });
+      setNota(0);
+      setTextoAvaliacao("");
+      setAvaliando(false);
+      alert("Avaliação publicada com sucesso.");
+    } catch (error) {
+      console.error("Erro ao publicar avaliação:", error);
+      alert("Não foi possível publicar a avaliação.");
+    } finally {
+      setPublicandoAvaliacao(false);
+    }
+  }
 
   const categorias = Array.isArray(evento?.themes)
     ? evento.themes
@@ -110,8 +332,26 @@ export function EventoInfo({ route, navigation }) {
         .map((item) => item.trim())
         .filter(Boolean);
 
-  if (!evento) {
-    return null;
+  if (carregandoEvento) {
+    return (
+      <MainContainer top={<Header title="Evento" />}>
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusText}>Carregando evento...</Text>
+        </View>
+      </MainContainer>
+    );
+  }
+
+  if (!evento || erroEvento) {
+    return (
+      <MainContainer top={<Header title="Evento" />}>
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusText}>
+            {erroEvento || "Evento não encontrado."}
+          </Text>
+        </View>
+      </MainContainer>
+    );
   }
 
   const {
@@ -120,9 +360,12 @@ export function EventoInfo({ route, navigation }) {
     description,
     address,
     startAt,
+    endAt,
     poster,
     reviewStats,
   } = evento;
+  const usuarioEhOrganizador = usuario?.role === "organizer";
+  const podeAvaliarEvento = podeAvaliar && !usuarioEhOrganizador;
 
   return (
     <KeyboardAvoidingView
@@ -142,7 +385,7 @@ export function EventoInfo({ route, navigation }) {
           </View>
         }
         bottom={
-          podeAvaliar && !avaliando ? (
+          podeAvaliarEvento && !avaliando ? (
             <View style={styles.bottomBar}>
               <TouchableOpacity
                 onPress={() => setAvaliando(true)}
@@ -183,14 +426,21 @@ export function EventoInfo({ route, navigation }) {
 
           <View style={styles.infoBloco}>
             <Text style={styles.infoTitulo}>Datas:</Text>
-            <Text style={styles.infoTexto}>{formatarData(startAt)}</Text>
+            <Text style={styles.infoTexto}>
+              Início: {formatarData(startAt)} às {formatarHorario(startAt)}
+              {"\n"}
+              Fim:{" "}
+              {endAt
+                ? `${formatarData(endAt)} às ${formatarHorario(endAt)}`
+                : "Não informado"}
+            </Text>
 
-            <Text style={styles.infoTitulo}>Endereco:</Text>
+            <Text style={styles.infoTitulo}>Endereço:</Text>
             <Text style={styles.infoTexto}>{address}</Text>
           </View>
 
           <View style={styles.avaliacoesHeader}>
-            <Text style={styles.avaliacoesTitulo}>Avaliacoes</Text>
+            <Text style={styles.avaliacoesTitulo}>Avaliações</Text>
           </View>
 
           <View style={styles.avaliacoesBox}>
@@ -200,23 +450,27 @@ export function EventoInfo({ route, navigation }) {
             />
             {avaliacoes.length > 0 ? (
               avaliacoes.map((avaliacao, index) => (
-                <View key={`${avaliacao.usuario ?? "usuario"}-${index}`}>
+                <View
+                  key={
+                    avaliacao.id ?? `${avaliacao.visitorId ?? "usuario"}-${index}`
+                  }
+                >
                   <Text style={styles.usuarioAvaliacao}>
-                    {avaliacao.usuario ?? "visitante"}
+                    {avaliacao.visitorName ?? avaliacao.usuario ?? "visitante"}
                   </Text>
                   <Text style={styles.textoAvaliacao}>
-                    {avaliacao.comentario ?? avaliacao.texto}
+                    {avaliacao.comment ?? avaliacao.comentario ?? avaliacao.texto}
                   </Text>
                 </View>
               ))
             ) : (
               <Text style={styles.textoAvaliacao}>
-                Ainda nao ha avaliacoes.
+                Ainda não há avaliações.
               </Text>
             )}
           </View>
 
-          {podeAvaliar && avaliando && (
+          {podeAvaliarEvento && avaliando && (
             <View style={styles.formAvaliacao}>
               <Estrelas
                 valor={nota}
@@ -227,13 +481,22 @@ export function EventoInfo({ route, navigation }) {
               <TextInput
                 value={textoAvaliacao}
                 onChangeText={setTextoAvaliacao}
-                placeholder="Descreva sua experiencia..."
+                placeholder="Descreva sua experiência..."
                 multiline
                 scrollEnabled
                 style={styles.inputAvaliacao}
               />
-              <TouchableOpacity style={styles.publicarButton}>
-                <Text style={styles.publicarText}>Publicar Avaliacao</Text>
+              <TouchableOpacity
+                disabled={publicandoAvaliacao}
+                onPress={publicarAvaliacao}
+                style={[
+                  styles.publicarButton,
+                  publicandoAvaliacao && styles.buttonDisabled,
+                ]}
+              >
+                <Text style={styles.publicarText}>
+                  {publicandoAvaliacao ? "Publicando..." : "Publicar avaliação"}
+                </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -251,6 +514,17 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     width: "100%",
+  },
+  statusContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 28,
+  },
+  statusText: {
+    color: colors.text,
+    fontSize: 14,
+    textAlign: "center",
   },
   card: {
     width: "100%",
@@ -408,6 +682,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 7,
     backgroundColor: "#C9D2B6",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   publicarText: {
     color: colors.white,
