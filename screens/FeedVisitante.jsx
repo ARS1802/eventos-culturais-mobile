@@ -2,7 +2,7 @@ import React from "react";
 import { RefreshControl } from "react-native";
 
 import colors from "../assets/colors";
-import { Header, Icons, MainContainer } from "../components";
+import { Header, Icons, MainContainer, UserIconButton } from "../components";
 import { useAuth } from "../navigation/contexts/AuthContext";
 import {
   EventFeedContent,
@@ -70,7 +70,16 @@ export function FeedVisitante({ navigation, route }) {
 
   return (
     <MainContainer
-      top={<Header title="Feed Visitante" />}
+      top={
+        <Header
+          title="Feed Visitante"
+          right={
+            <UserIconButton
+              onPress={() => navigation.navigate("ConfigUser")}
+            />
+          }
+        />
+      }
       onScroll={handleScroll}
       refreshControl={
         <RefreshControl

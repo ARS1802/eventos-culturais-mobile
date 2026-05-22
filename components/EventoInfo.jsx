@@ -448,7 +448,18 @@ export function EventoInfo({ route, navigation }) {
           </View>
 
           <View style={styles.avaliacoesBox}>
-            <Estrelas valor={reviewStats?.ratingAverage ?? 0} tamanho={18} />
+            <View style={styles.notaGeralBox}>
+              <Text style={styles.notaGeralTitulo}>Nota geral</Text>
+              <View style={styles.notaGeralLinha}>
+                <Estrelas valor={reviewStats?.ratingAverage ?? 0} tamanho={18} />
+                <Text style={styles.notaGeralTexto}>
+                  {Number(reviewStats?.ratingAverage ?? 0).toFixed(1)}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.avaliacoesSeparador} />
+
             {avaliacoes.length > 0 ? (
               avaliacoes.map((avaliacao, index) => (
                 <View
@@ -456,10 +467,15 @@ export function EventoInfo({ route, navigation }) {
                     avaliacao.id ??
                     `${avaliacao.visitorId ?? "usuario"}-${index}`
                   }
+                  style={styles.avaliacaoItem}
                 >
                   <Text style={styles.usuarioAvaliacao}>
                     {avaliacao.visitorName ?? avaliacao.usuario ?? "visitante"}
                   </Text>
+                  <Estrelas
+                    valor={avaliacao.rating ?? avaliacao.nota ?? 0}
+                    tamanho={16}
+                  />
                   <Text style={styles.textoAvaliacao}>
                     {avaliacao.comment ??
                       avaliacao.comentario ??
@@ -642,6 +658,30 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 6,
     backgroundColor: colors.white,
   },
+  notaGeralBox: {
+    paddingBottom: 10,
+  },
+  notaGeralTitulo: {
+    color: "#B8A8D9",
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: 2,
+  },
+  notaGeralLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  notaGeralTexto: {
+    color: "#1F1F1F",
+    fontSize: 13,
+    fontWeight: "700",
+    marginLeft: 4,
+  },
+  avaliacoesSeparador: {
+    height: 1,
+    marginBottom: 2,
+    backgroundColor: "#EFE8D6",
+  },
   estrelasLinha: {
     flexDirection: "row",
     alignItems: "center",
@@ -650,6 +690,9 @@ const styles = StyleSheet.create({
     color: "#E8D48D",
     lineHeight: 34,
     marginRight: 8,
+  },
+  avaliacaoItem: {
+    marginTop: 12,
   },
   usuarioAvaliacao: {
     color: "#B8A8D9",

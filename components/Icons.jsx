@@ -41,6 +41,15 @@ function ReviewIcon() {
   );
 }
 
+function UserIcon() {
+  return (
+    <View style={styles.userIcon}>
+      <View style={styles.userHead} />
+      <View style={styles.userBody} />
+    </View>
+  );
+}
+
 function IconButton({ label, onPress, children }) {
   return (
     <TouchableOpacity
@@ -52,6 +61,17 @@ function IconButton({ label, onPress, children }) {
     >
       {children}
     </TouchableOpacity>
+  );
+}
+
+export function UserIconButton({
+  onPress,
+  label = "Configurações do usuário",
+}) {
+  return (
+    <IconButton label={label} onPress={onPress}>
+      <UserIcon />
+    </IconButton>
   );
 }
 
@@ -188,5 +208,29 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 22,
     fontWeight: "800",
+  },
+  userIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    backgroundColor: colors.background,
+  },
+  userHead: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginTop: 4,
+    backgroundColor: colors.primary,
+  },
+  userBody: {
+    width: 22,
+    height: 12,
+    borderTopLeftRadius: 11,
+    borderTopRightRadius: 11,
+    marginTop: 4,
+    backgroundColor: colors.primary,
   },
 });

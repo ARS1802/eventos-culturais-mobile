@@ -12,6 +12,8 @@ import {
   FiltrosFeed,
   HistoricoVisitante,
   HistoricoOrganizador,
+  ConfigUser,
+  UserInfo,
 } from "../screens";
 import { EventoInfo } from "../components";
 
@@ -38,6 +40,8 @@ export default function AppNavigator() {
           name="HistoricoOrganizador"
           component={HistoricoOrganizador}
         />
+        <Stack.Screen name="ConfigUser" component={ConfigUser} />
+        <Stack.Screen name="UserInfo" component={UserInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   );

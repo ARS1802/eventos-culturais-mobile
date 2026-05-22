@@ -18,6 +18,10 @@ function limitarEstrelas(valor) {
 }
 
 function ehDataValida(valor) {
+  if (valor == null) {
+    return true;
+  }
+
   if (valor instanceof Date) {
     return !Number.isNaN(valor.getTime());
   }
@@ -96,6 +100,16 @@ function formatarData(valor) {
   }).format(data);
 }
 
+function formatarPeriodo(startAt, endAt) {
+  const dataInicio = formatarData(startAt);
+
+  if (!endAt) {
+    return dataInicio;
+  }
+
+  return `${dataInicio} - ${formatarData(endAt)}`;
+}
+
 /**
  * Card resumido de evento.
  *
@@ -125,6 +139,7 @@ export function Evento({
     organizerName,
     address,
     startAt,
+    endAt,
     poster,
     reviewStats,
   } = evento;
@@ -169,7 +184,7 @@ export function Evento({
           <Text numberOfLines={1} style={styles.titulo}>
             {title || "Titulo"}
           </Text>
-          <Text style={styles.data}>{formatarData(startAt)}</Text>
+          <Text style={styles.data}>{formatarPeriodo(startAt, endAt)}</Text>
           {address ? (
             <Text numberOfLines={1} style={styles.endereco}>
               {address}

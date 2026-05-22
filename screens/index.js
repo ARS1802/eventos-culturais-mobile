@@ -12,3 +12,5 @@ export { FeedVisitante } from "./FeedVisitante";
 export { FeedOrganizador } from "./FeedOrganizador";
 export { HistoricoVisitante } from "./HistoricoVisitante";
 export { HistoricoOrganizador } from "./HistoricoOrganizador";
+export { ConfigUser } from "./ConfigUser";
+export { UserInfo } from "./UserInfo";
