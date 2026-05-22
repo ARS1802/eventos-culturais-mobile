@@ -83,7 +83,8 @@ export function FeedVisitante({ navigation, route }) {
       bottom={
         <Icons
           tipo="visitante"
-          onAvaliar={() => alert("avaliar evento")}
+          labelAvaliar="Histórico de avaliações"
+          onAvaliar={() => navigation.navigate("HistoricoVisitante")}
           onFiltro={abrirFiltros}
         />
       }

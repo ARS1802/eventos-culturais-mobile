@@ -10,6 +10,8 @@ import {
   RecuperarSenha,
   CadastroEvento,
   FiltrosFeed,
+  HistoricoVisitante,
+  HistoricoOrganizador,
 } from "../screens";
 import { EventoInfo } from "../components";
 
@@ -31,6 +33,11 @@ export default function AppNavigator() {
         <Stack.Screen name="RecuperarSenha" component={RecuperarSenha} />
         <Stack.Screen name="CadastroEvento" component={CadastroEvento} />
         <Stack.Screen name="FiltrosFeed" component={FiltrosFeed} />
+        <Stack.Screen name="HistoricoVisitante" component={HistoricoVisitante} />
+        <Stack.Screen
+          name="HistoricoOrganizador"
+          component={HistoricoOrganizador}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

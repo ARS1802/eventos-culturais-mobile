@@ -52,3 +52,15 @@ export async function getReview(id, visitanteId) {
     throw error;
   }
 }
+
+export async function getReviewsByVisitor(visitanteId) {
+  const visitorId = visitanteId?.trim?.();
+
+  if (!visitorId) {
+    return [];
+  }
+
+  const reviews = await getReview(null, visitorId);
+
+  return Array.isArray(reviews) ? reviews : [];
+}

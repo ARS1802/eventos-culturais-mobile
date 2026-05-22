@@ -10,3 +10,5 @@ export { CadastroEvento } from "./CadastroEvento";
 export { FiltrosFeed } from "./FiltrosFeed";
 export { FeedVisitante } from "./FeedVisitante";
 export { FeedOrganizador } from "./FeedOrganizador";
+export { HistoricoVisitante } from "./HistoricoVisitante";
+export { HistoricoOrganizador } from "./HistoricoOrganizador";

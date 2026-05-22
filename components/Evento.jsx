@@ -102,11 +102,13 @@ function formatarData(valor) {
  * @param {Object} props
  * @param {CulturalEvent} props.evento Evento seguindo a interface CulturalEvent.
  * @param {boolean} [props.podeAvaliar]
+ * @param {string} [props.comentarioAvaliacao]
  * @param {(evento: CulturalEvent) => void} [props.onPress]
  */
 export function Evento({
   evento,
   podeAvaliar = false,
+  comentarioAvaliacao = "",
   onPress,
 }) {
   const navigation = useNavigation();
@@ -128,6 +130,7 @@ export function Evento({
   } = evento;
   const posterUrl = poster?.url ?? "";
   const estrelas = limitarEstrelas(reviewStats?.ratingAverage ?? 0);
+  const comentario = comentarioAvaliacao?.trim?.() ?? "";
 
   function abrirDetalhes() {
     if (onPress) {
@@ -181,6 +184,12 @@ export function Evento({
           </Text>
         </View>
       </View>
+
+      {comentario ? (
+        <View style={styles.comentarioContainer}>
+          <Text style={styles.comentarioTexto}>{comentario}</Text>
+        </View>
+      ) : null}
     </TouchableOpacity>
   );
 }
@@ -258,5 +267,17 @@ const styles = StyleSheet.create({
     color: colors.accent,
     fontSize: 27,
     lineHeight: 30,
+  },
+  comentarioContainer: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.background,
+    backgroundColor: colors.white,
+  },
+  comentarioTexto: {
+    color: "#1F1F1F",
+    fontSize: 16,
+    lineHeight: 21,
   },
 });
