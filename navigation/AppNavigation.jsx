@@ -7,6 +7,7 @@ import {
   EventoTesteScreen,
   FeedVisitante,
   FeedOrganizador,
+  EventoStatus,
   RecuperarSenha,
   CadastroEvento,
   FiltrosFeed,
@@ -32,6 +33,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="FeedVisitante" component={FeedVisitante} />
         <Stack.Screen name="FeedOrganizador" component={FeedOrganizador} />
+        <Stack.Screen name="EventoStatus" component={EventoStatus} />
         <Stack.Screen name="RecuperarSenha" component={RecuperarSenha} />
         <Stack.Screen name="CadastroEvento" component={CadastroEvento} />
         <Stack.Screen name="FiltrosFeed" component={FiltrosFeed} />

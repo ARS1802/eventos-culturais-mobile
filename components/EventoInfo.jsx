@@ -145,7 +145,7 @@ function mesclarAvaliacoes(atuais, proximas) {
  * @param {{ goBack?: () => void }} [props.navigation]
  */
 export function EventoInfo({ route, navigation }) {
-  const { usuario } = useAuth();
+  const { firebaseUser, usuario } = useAuth();
   /** @type {CulturalEvent | null} */
   const eventoParam = useMemo(() => route?.params?.evento ?? null, [route]);
   const [evento, setEvento] = useState(eventoParam);
@@ -329,6 +329,19 @@ export function EventoInfo({ route, navigation }) {
     }
   }
 
+  function abrirStatusEvento() {
+    if (!evento) {
+      return;
+    }
+
+    navigation?.navigate?.("EventoStatus", {
+      eventoId: evento.id,
+      organizerId: organizerId || evento.organizerId,
+      evento,
+      avaliacoes,
+    });
+  }
+
   const categorias = Array.isArray(evento?.themes)
     ? evento.themes
     : String(evento?.themes ?? "")
@@ -369,6 +382,9 @@ export function EventoInfo({ route, navigation }) {
     reviewStats,
   } = evento;
   const usuarioEhOrganizador = usuario?.role === "organizer";
+  const usuarioId = usuario?.id ?? firebaseUser?.uid ?? "";
+  const usuarioPodeGerenciarEvento =
+    usuarioEhOrganizador && evento.organizerId === usuarioId;
   const podeAvaliarEvento = podeAvaliar && !usuarioEhOrganizador;
 
   return (
@@ -396,6 +412,17 @@ export function EventoInfo({ route, navigation }) {
                 style={styles.avaliarButton}
               >
                 <Text style={styles.avaliarText}>Avaliar</Text>
+              </TouchableOpacity>
+            </View>
+          ) : usuarioPodeGerenciarEvento ? (
+            <View style={styles.bottomBar}>
+              <TouchableOpacity
+                accessibilityLabel="Status do evento"
+                accessibilityRole="button"
+                onPress={abrirStatusEvento}
+                style={styles.statusButton}
+              >
+                <Text style={styles.statusButtonText}>Status</Text>
               </TouchableOpacity>
             </View>
           ) : null
@@ -754,6 +781,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8D48D",
   },
   avaliarText: {
+    color: colors.white,
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  statusButton: {
+    minWidth: 150,
+    minHeight: 42,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 7,
+    backgroundColor: colors.green,
+  },
+  statusButtonText: {
     color: colors.white,
     fontSize: 18,
     fontWeight: "800",

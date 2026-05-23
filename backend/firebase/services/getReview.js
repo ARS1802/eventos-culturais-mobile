@@ -64,3 +64,24 @@ export async function getReviewsByVisitor(visitanteId) {
 
   return Array.isArray(reviews) ? reviews : [];
 }
+
+export async function getReviewsByEvent(eventoId) {
+  const eventId = eventoId?.trim?.();
+
+  if (!eventId) {
+    return [];
+  }
+
+  try {
+    const reviewsQuery = query(
+      reviewsCollection,
+      where("eventId", "==", eventId),
+    );
+    const querySnapshot = await getDocs(reviewsQuery);
+
+    return querySnapshot.docs.map(formatReview);
+  } catch (error) {
+    console.error("Erro ao buscar avaliações do evento:", error);
+    throw error;
+  }
+}
