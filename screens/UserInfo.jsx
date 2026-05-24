@@ -12,6 +12,29 @@ const roleLabels = {
   organizer: "Organizador",
 };
 
+function formatCreatedAt(usuario, firebaseUser) {
+  const createdAt = usuario?.createdAt ?? firebaseUser?.metadata?.creationTime;
+
+  if (!createdAt) {
+    return "";
+  }
+
+  const date =
+    createdAt instanceof Date
+      ? createdAt
+      : createdAt?.toDate?.() ?? new Date(createdAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
 function InfoRow({ label, value }) {
   return (
     <View style={styles.row}>
@@ -26,6 +49,7 @@ export function UserInfo({ navigation }) {
   const [submitting, setSubmitting] = useState(false);
   const [confirmacaoVisivel, setConfirmacaoVisivel] = useState(false);
   const userId = usuario?.id ?? firebaseUser?.uid;
+  const createdAt = formatCreatedAt(usuario, firebaseUser);
 
   async function excluirConta() {
     if (!userId) {
@@ -84,7 +108,7 @@ export function UserInfo({ navigation }) {
           label="Tipo de usuário"
           value={roleLabels[usuario?.role] ?? usuario?.role}
         />
-        <InfoRow label="ID" value={userId} />
+        <InfoRow label="Conta criada em" value={createdAt} />
 
         <TouchableOpacity
           activeOpacity={0.8}
