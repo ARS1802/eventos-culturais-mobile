@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import colors from "../assets/colors";
 import { Header, MainContainer } from "../components";
 import { deleteUser } from "../backend/firebase/services/deleteUser";
 import { useAuth } from "../navigation/contexts/AuthContext";
+import { ConfirmDeletion } from "../popUps/ConfirmDeletion";
 
 const roleLabels = {
   visitor: "Visitante",
@@ -23,6 +24,7 @@ function InfoRow({ label, value }) {
 export function UserInfo({ navigation }) {
   const { firebaseUser, usuario, logout } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [confirmacaoVisivel, setConfirmacaoVisivel] = useState(false);
   const userId = usuario?.id ?? firebaseUser?.uid;
 
   async function excluirConta() {
@@ -32,6 +34,7 @@ export function UserInfo({ navigation }) {
     }
 
     setSubmitting(true);
+    setConfirmacaoVisivel(false);
 
     try {
       const result = await deleteUser(userId);
@@ -69,18 +72,7 @@ export function UserInfo({ navigation }) {
   }
 
   function confirmarExclusao() {
-    Alert.alert(
-      "Deletar conta",
-      "Essa ação remove seu perfil e sua conta de autenticação. Deseja continuar?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Deletar",
-          style: "destructive",
-          onPress: excluirConta,
-        },
-      ],
-    );
+    setConfirmacaoVisivel(true);
   }
 
   return (
@@ -114,6 +106,16 @@ export function UserInfo({ navigation }) {
           <Text style={styles.backButtonText}>Voltar</Text>
         </TouchableOpacity>
       </View>
+
+      <ConfirmDeletion
+        visible={confirmacaoVisivel}
+        title="Deletar conta"
+        message="Essa ação remove seu perfil e sua conta de autenticação. Deseja continuar?"
+        confirmText="Deletar"
+        loading={submitting}
+        onCancel={() => setConfirmacaoVisivel(false)}
+        onConfirm={excluirConta}
+      />
     </MainContainer>
   );
 }
