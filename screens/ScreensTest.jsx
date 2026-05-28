@@ -375,6 +375,7 @@ export const FeedOrganizadorScreen = ({ navigation }) => {
         <Icons
           tipo="organizador"
           onCriar={() => navigation.navigate("CadastroEvento")}
+          onHistorico={() => navigation.navigate("HistoricoOrganizador")}
           onFiltro={() => alert("filtrar eventos")}
         />
       }

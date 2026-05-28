@@ -15,6 +15,7 @@ import { getEvent } from "../backend/firebase/services/getEvent";
 import { registerReview } from "../backend/firebase/services/registerReview";
 import { reviewsCollection } from "../backend/models/firestoreReferences";
 import { useAuth } from "../navigation/contexts/AuthContext";
+import { EVENT_THEME_OPTIONS } from "../utils/eventThemes";
 import { Header } from "./Header";
 import { MainContainer } from "./MainContainer";
 
@@ -81,6 +82,26 @@ function formatarData(valor) {
     month: "2-digit",
     year: "numeric",
   }).format(data);
+}
+
+const EVENT_THEME_LABELS = new Map(
+  EVENT_THEME_OPTIONS.map((theme) => [theme.value, theme.label]),
+);
+
+function formatarTema(valor) {
+  const tema = String(valor ?? "").trim();
+
+  if (!tema) {
+    return "";
+  }
+
+  return (
+    EVENT_THEME_LABELS.get(tema) ??
+    tema
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/^./, (letra) => letra.toUpperCase())
+  );
 }
 
 function formatarHorario(valor) {
@@ -348,6 +369,7 @@ export function EventoInfo({ route, navigation }) {
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean);
+  const categoriasFormatadas = categorias.map(formatarTema).filter(Boolean);
 
   if (carregandoEvento) {
     return (
@@ -443,9 +465,9 @@ export function EventoInfo({ route, navigation }) {
 
           <Text style={styles.organizador}>by {organizerName}</Text>
 
-          {categorias.length > 0 && (
+          {categoriasFormatadas.length > 0 && (
             <View style={styles.categorias}>
-              {categorias.map((categoria) => (
+              {categoriasFormatadas.map((categoria) => (
                 <Text key={categoria} style={styles.categoria}>
                   {categoria}
                 </Text>
@@ -714,7 +736,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   estrela: {
-    color: "#E8D48D",
+    color: colors.starContrast,
     lineHeight: 34,
     marginRight: 8,
   },
@@ -755,7 +777,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 7,
-    backgroundColor: "#C9D2B6",
+    backgroundColor: colors.greenContrast,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -791,7 +813,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 7,
-    backgroundColor: colors.green,
+    backgroundColor: colors.greenContrast,
   },
   statusButtonText: {
     color: colors.white,

@@ -71,12 +71,18 @@ export function MultipleChoicePicker({
                 checkboxPosition === "left" && styles.textAfterCheckbox,
               ]}
             >
-              <Text style={[styles.title, compact && styles.titleCompact]}>
+              <Text
+                style={[
+                  styles.title,
+                  isSelected && styles.titleSelected,
+                  compact && styles.titleCompact,
+                ]}
+              >
                 {item.label}
               </Text>
 
               {item.description && (
-                <Text style={styles.description}>
+                <Text style={[styles.description, isSelected && styles.descriptionSelected]}>
                   {item.description}
                 </Text>
               )}
@@ -105,7 +111,9 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.accentContrast,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
     padding: 15,
     borderRadius: 14,
   },
@@ -118,7 +126,7 @@ const styles = StyleSheet.create({
   },
 
   cardSelected: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.secondaryContrast,
   },
 
   disabled: {
@@ -143,9 +151,13 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: COLORS.white,
+    color: COLORS.text,
     fontWeight: 'bold',
     fontSize: 14,
+  },
+
+  titleSelected: {
+    color: COLORS.white,
   },
 
   titleCompact: {
@@ -153,10 +165,14 @@ const styles = StyleSheet.create({
   },
 
   description: {
-    color: COLORS.white,
+    color: COLORS.text,
     fontSize: 12,
-    opacity: 0.8,
+    opacity: 0.85,
     marginTop: 2,
+  },
+
+  descriptionSelected: {
+    color: COLORS.white,
   },
 
   checkbox: {

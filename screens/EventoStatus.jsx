@@ -808,7 +808,7 @@ const styles = StyleSheet.create({
   },
   starText: {
     minWidth: 116,
-    color: "#E8D48D",
+    color: colors.starContrast,
     fontSize: 24,
     lineHeight: 27,
     letterSpacing: 0,
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 7,
     paddingHorizontal: 18,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.error,
   },
   deleteButtonDisabled: {
     opacity: 0.6,

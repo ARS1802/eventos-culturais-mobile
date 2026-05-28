@@ -80,18 +80,26 @@ export function Icons({
   onAvaliar,
   onCriar,
   onFiltro,
+  onHistorico,
   labelAvaliar = "Avaliar evento",
   labelCriar = "Criar evento",
   labelFiltro = "Filtrar eventos",
+  labelHistorico = "Histórico de eventos",
 }) {
   const isOrganizador = tipo === "organizador";
 
   return (
     <View style={styles.container}>
       {isOrganizador ? (
-        <IconButton label={labelCriar} onPress={onCriar}>
-          <CreateIcon />
-        </IconButton>
+        <>
+          <IconButton label={labelHistorico} onPress={onHistorico}>
+            <ReviewIcon />
+          </IconButton>
+
+          <IconButton label={labelCriar} onPress={onCriar}>
+            <CreateIcon />
+          </IconButton>
+        </>
       ) : (
         <IconButton label={labelAvaliar} onPress={onAvaliar}>
           <ReviewIcon />

@@ -98,7 +98,7 @@ export function FiltrosFeed({ navigation, route }) {
         </View>
       }
       bottom={
-        <Bottom transparent style={styles.bottom}>
+        <Bottom edges={[]} transparent style={styles.bottom}>
           <View style={styles.actions}>
             <TouchableOpacity
               accessibilityRole="button"
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     borderColor: colors.background,
   },
   applyButton: {
-    backgroundColor: colors.green,
+    backgroundColor: colors.greenContrast,
   },
   actionText: {
     color: colors.white,

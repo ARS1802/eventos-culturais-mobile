@@ -155,7 +155,7 @@ export const Cadastro = ({ navigation }) => {
     <MainContainer
       top={<Header title="Sacada Cultural" />}
       bottom={
-        <Bottom transparent={false}>
+        <Bottom edges={[]} transparent={false}>
           <ButtonBottom
             title="Já tenho conta"
             color={colors.primary}

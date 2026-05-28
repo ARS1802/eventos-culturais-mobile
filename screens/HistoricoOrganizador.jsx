@@ -117,7 +117,7 @@ export function HistoricoOrganizador({ navigation }) {
       }
       bottom={
         isAuthenticated && (!usuario || isOrganizer) ? (
-          <Bottom transparent={false} style={styles.bottom}>
+          <Bottom edges={[]} transparent={false} style={styles.bottom}>
             <TouchableOpacity
               accessibilityLabel="Novo Evento"
               accessibilityRole="button"
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 8,
     paddingHorizontal: 20,
-    backgroundColor: colors.green,
+    backgroundColor: colors.greenContrast,
   },
   newEventText: {
     color: colors.white,

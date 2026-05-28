@@ -93,8 +93,10 @@ export function FeedOrganizador({ navigation, route }) {
       bottom={
         <Icons
           tipo="organizador"
-          labelCriar="Seus eventos"
-          onCriar={() => navigation.navigate("HistoricoOrganizador")}
+          labelCriar="Criar evento"
+          onCriar={() => navigation.navigate("CadastroEvento")}
+          labelHistorico="Histórico de eventos"
+          onHistorico={() => navigation.navigate("HistoricoOrganizador")}
           onFiltro={abrirFiltros}
         />
       }

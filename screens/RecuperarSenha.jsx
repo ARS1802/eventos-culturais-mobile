@@ -96,7 +96,7 @@ export function RecuperarSenha({ navigation }) {
           <Bottom transparent={true}>
             <ButtonBottom
               title={submitting ? "Enviando..." : "Enviar código"}
-              color={colors.secondary}
+              color={colors.secondaryContrast}
               onPress={enviarCodigo}
               disabled={submitting}
             />

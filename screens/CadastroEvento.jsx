@@ -166,10 +166,10 @@ export function CadastroEvento({ navigation }) {
         </View>
       }
       bottom={
-        <Bottom transparent={true}>
+        <Bottom edges={[]} transparent={true}>
           <ButtonBottom
             title={submitting ? "Salvando..." : "Concluir!"}
-            color={colors.secondary}
+            color={colors.secondaryContrast}
             onPress={concluir}
             disabled={submitting}
           />
@@ -223,7 +223,7 @@ export function CadastroEvento({ navigation }) {
       />
 
       <ImagePickerButton
-        cor={colors.blue}
+        cor={colors.blueContrast}
         texto={poster ? "Cartaz selecionado" : "Upload cartaz 📷"}
         onPick={setPoster}
         style={styles.uploadButton}

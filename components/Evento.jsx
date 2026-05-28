@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   estrelas: {
-    color: colors.accent,
+    color: colors.starContrast,
     fontSize: 27,
     lineHeight: 30,
   },

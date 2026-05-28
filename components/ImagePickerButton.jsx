@@ -11,7 +11,7 @@ import { tamanhoArquivoValido } from "../utils/validation";
 import colors from "../assets/colors";
 
 export function ImagePickerButton({
-  cor = colors.blue,
+  cor = colors.blueContrast,
   texto = "Upload cartaz 📷",
   onPick,
   style,
@@ -75,7 +75,7 @@ export function ImagePickerButton({
       disabled={loading}
     >
       {loading ? (
-        <ActivityIndicator color="#F4EBDD" />
+        <ActivityIndicator color={colors.white} />
       ) : (
         <Text style={styles.texto}>{texto}</Text>
       )}
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   texto: {
-    color: "#F4EBDD",
+    color: colors.white,
     fontSize: 16,
     fontWeight: "bold",
   },
