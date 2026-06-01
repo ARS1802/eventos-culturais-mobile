@@ -1,4 +1,21 @@
 {
-  "compilerOptions": {},
-  "extends": "expo/tsconfig.base"
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": [
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.ts",
+    "**/*.tsx",
+    "backend/tests/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "backend/tests/dist",
+    "android",
+    "ios"
+  ]
 }

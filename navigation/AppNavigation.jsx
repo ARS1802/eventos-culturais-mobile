@@ -1,15 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import {
   Login,
-  LoginScreen,
-  TelaTemp,
-  CadastroScreen,
-  FeedVisitanteScreen,
-  FeedOrganizadorScreen,
+  Cadastro,
+  EventoTesteScreen,
+  FeedVisitante,
+  FeedOrganizador,
+  EventoStatus,
+  RecuperarSenha,
+  CadastroEvento,
+  FiltrosFeed,
+  HistoricoVisitante,
+  HistoricoOrganizador,
+  ConfigUser,
+  UserInfo,
 } from "../screens";
+import { EventoInfo } from "../components";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,13 +27,23 @@ export default function AppNavigator() {
         initialRouteName="Login"
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Cadastro" component={CadastroScreen} />
-        <Stack.Screen name="FeedVisitante" component={FeedVisitanteScreen} />
+        <Stack.Screen name="EventoTeste" component={EventoTesteScreen} />
+        <Stack.Screen name="EventoInfo" component={EventoInfo} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Cadastro" component={Cadastro} />
+        <Stack.Screen name="FeedVisitante" component={FeedVisitante} />
+        <Stack.Screen name="FeedOrganizador" component={FeedOrganizador} />
+        <Stack.Screen name="EventoStatus" component={EventoStatus} />
+        <Stack.Screen name="RecuperarSenha" component={RecuperarSenha} />
+        <Stack.Screen name="CadastroEvento" component={CadastroEvento} />
+        <Stack.Screen name="FiltrosFeed" component={FiltrosFeed} />
+        <Stack.Screen name="HistoricoVisitante" component={HistoricoVisitante} />
         <Stack.Screen
-          name="FeedOrganizador"
-          component={FeedOrganizadorScreen}
+          name="HistoricoOrganizador"
+          component={HistoricoOrganizador}
         />
+        <Stack.Screen name="ConfigUser" component={ConfigUser} />
+        <Stack.Screen name="UserInfo" component={UserInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   );

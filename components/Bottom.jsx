@@ -7,11 +7,12 @@ export function Bottom({
   children,
   transparent = false,
   direction = "column",
+  edges = ["bottom"],
   style,
 }) {
   return (
     <SafeAreaView
-      edges={["bottom"]}
+      edges={edges}
       style={[
         styles.container,
         { backgroundColor: transparent ? "transparent" : colors.primary },

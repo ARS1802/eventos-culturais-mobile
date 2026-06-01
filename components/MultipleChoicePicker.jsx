@@ -12,6 +12,8 @@ export function MultipleChoicePicker({
   options = [],
   selected = [],
   onChange = () => {},
+  compact = false,
+  checkboxPosition = "right",
 }) {
 
   function toggleOption(value) {
@@ -37,6 +39,7 @@ export function MultipleChoicePicker({
             activeOpacity={0.8}
             style={[
               styles.card,
+              compact && styles.cardCompact,
               isSelected && styles.cardSelected,
               item.disabled && styles.disabled
             ]}
@@ -46,28 +49,53 @@ export function MultipleChoicePicker({
               }
             }}
           >
+            {checkboxPosition === "left" && (
+              <View style={[styles.checkbox, compact && styles.checkboxCompact]}>
+                {isSelected && (
+                  <Text style={styles.check}>✓</Text>
+                )}
+              </View>
+            )}
+
             {/* ÍCONE */}
             {item.icon && (
-              <Text style={styles.icon}>{item.icon}</Text>
+              <Text style={[styles.icon, compact && styles.iconCompact]}>
+                {item.icon}
+              </Text>
             )}
 
             {/* TEXOS */}
-            <View style={styles.textContainer}>
-              <Text style={styles.title}>{item.label}</Text>
+            <View
+              style={[
+                styles.textContainer,
+                checkboxPosition === "left" && styles.textAfterCheckbox,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.title,
+                  isSelected && styles.titleSelected,
+                  compact && styles.titleCompact,
+                ]}
+              >
+                {item.label}
+              </Text>
 
               {item.description && (
-                <Text style={styles.description}>
+                <Text style={[styles.description, isSelected && styles.descriptionSelected]}>
                   {item.description}
                 </Text>
               )}
             </View>
 
             {/* CHECKBOX */}
-            <View style={styles.checkbox}>
-              {isSelected && (
-                <Text style={styles.check}>✓</Text>
-              )}
-            </View>
+            {checkboxPosition !== "left" && (
+              <View style={[styles.checkbox, compact && styles.checkboxCompact]}>
+                {isSelected && (
+                  <Text style={styles.check}>✓</Text>
+                )}
+              </View>
+            )}
           </TouchableOpacity>
         );
       })}
@@ -83,13 +111,22 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.accentContrast,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
     padding: 15,
     borderRadius: 14,
   },
 
+  cardCompact: {
+    minHeight: 36,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+  },
+
   cardSelected: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.secondaryContrast,
   },
 
   disabled: {
@@ -101,21 +138,41 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 
+  iconCompact: {
+    marginRight: 8,
+  },
+
   textContainer: {
     flex: 1,
   },
 
+  textAfterCheckbox: {
+    marginLeft: 10,
+  },
+
   title: {
-    color: COLORS.white,
+    color: COLORS.text,
     fontWeight: 'bold',
     fontSize: 14,
   },
 
-  description: {
+  titleSelected: {
     color: COLORS.white,
+  },
+
+  titleCompact: {
+    textAlign: 'right',
+  },
+
+  description: {
+    color: COLORS.text,
     fontSize: 12,
-    opacity: 0.8,
+    opacity: 0.85,
     marginTop: 2,
+  },
+
+  descriptionSelected: {
+    color: COLORS.white,
   },
 
   checkbox: {
@@ -126,6 +183,12 @@ const styles = StyleSheet.create({
     borderColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  checkboxCompact: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
   },
 
   check: {

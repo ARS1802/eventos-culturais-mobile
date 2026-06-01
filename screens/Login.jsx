@@ -1,67 +1,151 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import {
   Bottom,
-  DatePicker,
   Header,
   Input,
   MainContainer,
-  SingleChoicePicker,
-  MultipleChoicePicker,
+  validarInputs,
 } from "../components";
 import colors from "../assets/colors";
+import { getUser } from "../backend/firebase/services/getUser";
+import { useAuth } from "../navigation/contexts/AuthContext";
 
-// encapsulamento das coisas que vão no Bottom
-function ButtonBottom({ color, title, onPress }) {
+function getLoginErrorMessage(error) {
+  if (error?.code === "auth/invalid-email") {
+    return "Email inválido.";
+  }
+
+  if (error?.code === "auth/invalid-credential") {
+    return "Email ou senha incorretos.";
+  }
+
+  if (
+    error?.code === "auth/user-not-found" ||
+    error?.code === "auth/wrong-password"
+  ) {
+    return "Email ou senha incorretos.";
+  }
+
+  if (error?.code === "auth/user-disabled") {
+    return "Esta conta foi desativada.";
+  }
+
+  if (error?.code === "auth/network-request-failed") {
+    return "Não foi possível conectar ao Firebase. Verifique sua internet.";
+  }
+
+  if (error?.code === "auth/configuration-not-found") {
+    return "A autenticação ainda não foi configurada no Firebase.";
+  }
+
+  return "Não foi possível entrar. Tente novamente.";
+}
+
+function isWrongPasswordError(error) {
+  return (
+    error?.code === "auth/invalid-credential" ||
+    error?.code === "auth/wrong-password"
+  );
+}
+
+function ButtonBottom({ color, title, onPress, disabled }) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.buttonBottom, { backgroundColor: color }]}
+      disabled={disabled}
+      style={[
+        styles.buttonBottom,
+        { backgroundColor: color },
+        disabled && styles.buttonDisabled,
+      ]}
     >
       <Text style={styles.buttonBottomText}>{title}</Text>
     </TouchableOpacity>
   );
 }
 
-function LoginButton({ onPress }) {
+function LoginButton({ onPress, disabled, navigation }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.loginButton}>
-      <Text style={styles.loginButtonText}>Login</Text>
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      style={[styles.loginButton, disabled && styles.buttonDisabled]}
+    >
+      <Text style={styles.loginButtonText}>
+        {disabled ? "Entrando..." : "Login "}
+      </Text>
     </TouchableOpacity>
   );
 }
 
-export const Login = () => {
+export const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
 
-  const [erroEmail, setErroEmail] = useState("");
-  const [erroSenha, setErroSenha] = useState("");
-  const [opcao, setOpcao] = useState("");
+  const emailRef = useRef(null);
+  const senhaRef = useRef(null);
 
-  function validar() {
-    let valido = true;
+  async function entrar() {
+    const erro = validarInputs([emailRef, senhaRef]);
 
-    if (email === "") {
-      setErroEmail("Email é obrigatório");
-    } else {
-      setErroEmail("");
-      alert("OK");
+    if (erro) {
+      alert("Login " + erro);
+      return;
     }
 
-    if (senha === "") {
-      setErroSenha("Senha é obrigatória");
-      valido = false;
-    } else {
-      setErroSenha("");
+    if (!senha) {
+      alert("Login " + "Senha é obrigatória");
+      return;
     }
 
-    if (valido) {
-      alert("OK");
-    } else {
-      alert("Preencha os campos corretamente");
+    setSubmitting(true);
+
+    try {
+      const emailNormalizado = email.trim().toLowerCase();
+      const usuarioCadastrado = await getUser({ email: emailNormalizado });
+
+      if (!usuarioCadastrado) {
+        alert("Login " + "Usuário não existe.");
+        return;
+      }
+
+      const usuarioLogado = await login(
+        emailNormalizado,
+        senha,
+        usuarioCadastrado,
+      );
+
+      if (!usuarioLogado) {
+        alert(
+          "Login " +
+            "Usuário autenticado, mas não encontrado no banco de dados.",
+        );
+        return;
+      }
+
+      alert("Login " + "Usuário logado com sucesso.");
+
+      if (usuarioCadastrado.role == "visitor") {
+        navigation.navigate("FeedVisitante");
+      }
+      if (usuarioCadastrado.role == "organizer") {
+        navigation.navigate("FeedOrganizador");
+      }
+    } catch (error) {
+      alert(
+        "Login " +
+          (isWrongPasswordError(error)
+            ? "Senha incorreta."
+            : getLoginErrorMessage(error)),
+      );
+    } finally {
+      setSubmitting(false);
     }
   }
+
   return (
     <MainContainer
       top={<Header title="Sacada Cultural" />}
@@ -70,33 +154,37 @@ export const Login = () => {
           <ButtonBottom
             title="Cadastre-se!"
             color={colors.primary}
-            onPress={() => alert("segue para CadastroScreen")}
-          />
-          <ButtonBottom
-            title="Recuperar Senha"
-            color={colors.secondary}
-            onPress={() => alert("segue para RetrieveScreen")}
+            disabled={submitting}
+            onPress={() => navigation.navigate("Cadastro")}
           />
         </Bottom>
       }
     >
       <Input
+        ref={emailRef}
         label="Email"
         placeholder="Digite seu email"
         value={email}
         onChangeText={setEmail}
-        error={erroEmail}
+        validationType="email"
+        autoCapitalize="none"
+        keyboardType="email-address"
       />
       <Input
+        ref={senhaRef}
         label="Senha"
         placeholder="Digite sua senha"
         value={senha}
         onChangeText={setSenha}
         secureTextEntry
-        error={erroSenha}
       />
-
-      <LoginButton onPress={validar} />
+      <TouchableOpacity
+        disabled={submitting}
+        onPress={() => navigation.navigate("RecuperarSenha")}
+      >
+        <Text style={styles.linkRecuperar}>Esqueceu sua senha?</Text>
+      </TouchableOpacity>
+      <LoginButton onPress={entrar} disabled={submitting} />
     </MainContainer>
   );
 };
@@ -124,5 +212,15 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: colors.white,
     fontWeight: "bold",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  linkRecuperar: {
+    color: colors.primary,
+    textDecorationLine: "underline",
+    marginTop: 8,
+    marginBottom: 4,
+    fontSize: 13,
   },
 });
